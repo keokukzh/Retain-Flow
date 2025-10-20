@@ -1,0 +1,280 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                String         @id @default(uuid())
+  email             String         @unique
+  passwordHash      String
+  emailVerified     Boolean        @default(false)
+  emailVerifiedAt   DateTime?
+  createdAt         DateTime       @default(now())
+  updatedAt         DateTime       @updatedAt
+  
+  // Integration IDs
+  discordId         String?        @unique
+  whopId            String?        @unique
+  shopifyId         String?        @unique
+  
+  // Relations
+  subscriptions     Subscription[]
+  churnPredictions  ChurnPrediction[]
+  retentionOffers   RetentionOffer[]
+  affiliateReferrals AffiliateReferral[] @relation("Referrer")
+  affiliateEarnings AffiliateReferral[] @relation("EarnedBy")
+  discordMembers    DiscordMember[]
+  
+  @@map("users")
+}
+
+model Subscription {
+  id                   String             @id @default(uuid())
+  userId               String
+  user                 User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  // Stripe fields
+  stripeSubscriptionId String             @unique
+  stripeCustomerId     String
+  stripePriceId        String
+  
+  // Subscription details
+  status               SubscriptionStatus @default(ACTIVE)
+  plan                 PlanType           @default(FREE)
+  currentPeriodStart   DateTime           @default(now())
+  currentPeriodEnd     DateTime
+  cancelAtPeriodEnd    Boolean            @default(false)
+  
+  // Timestamps
+  startedAt            DateTime           @default(now())
+  endedAt              DateTime?
+  cancelledAt          DateTime?
+  createdAt            DateTime           @default(now())
+  updatedAt            DateTime           @updatedAt
+  
+  @@map("subscriptions")
+}
+
+model RetentionOffer {
+  id              String  @id @default(uuid())
+  userId          String?
+  user            User?   @relation(fields: [userId], references: [id], onDelete: SetNull)
+  
+  // Offer details
+  reason          String  // e.g., "price_too_high", "not_using_features", "found_alternative"
+  discountPercent Int     // 0-100
+  description     String
+  offerCode       String  @unique
+  expiresAt       DateTime
+  
+  // Status
+  active          Boolean @default(true)
+  used            Boolean @default(false)
+  usedAt          DateTime?
+  
+  // Timestamps
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  
+  @@map("retention_offers")
+}
+
+model ChurnPrediction {
+  id           String   @id @default(uuid())
+  userId       String
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  // Prediction data
+  score        Float    // 0-1, where 1 is highest churn risk
+  factors      Json     // Detailed breakdown of risk factors
+  confidence   Float    // 0-1, confidence in prediction
+  
+  // Metadata
+  modelVersion String   @default("v1.0")
+  predictedAt  DateTime @default(now())
+  
+  @@map("churn_predictions")
+}
+
+model AffiliateReferral {
+  id                String   @id @default(uuid())
+  referrerId        String
+  referrer          User     @relation("Referrer", fields: [referrerId], references: [id])
+  earnedById        String
+  earnedBy          User     @relation("EarnedBy", fields: [earnedById], references: [id])
+  
+  // Referral details
+  referralCode      String   @unique
+  subscriptionId    String   @unique
+  commissionAmount  Float
+  commissionPercent Float    @default(0.10) // 10% default
+  
+  // Status
+  status            AffiliateStatus @default(PENDING)
+  paidAt            DateTime?
+  
+  // Timestamps
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  
+  @@map("affiliate_referrals")
+}
+
+model EmailCampaign {
+  id          String   @id @default(uuid())
+  name        String
+  type        CampaignType
+  template    String
+  subject     String
+  content     String
+  
+  // Scheduling
+  scheduledAt DateTime?
+  sentAt      DateTime?
+  
+  // Status
+  status      CampaignStatus @default(DRAFT)
+  active      Boolean        @default(true)
+  
+  // Relations
+  emailLogs   EmailLog[]
+  
+  // Timestamps
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  @@map("email_campaigns")
+}
+
+model EmailLog {
+  id         String   @id @default(uuid())
+  campaignId String?
+  campaign   EmailCampaign? @relation(fields: [campaignId], references: [id])
+  
+  // Recipient
+  to         String
+  subject    String
+  
+  // Status
+  status     EmailStatus @default(PENDING)
+  sentAt     DateTime?
+  openedAt   DateTime?
+  clickedAt  DateTime?
+  
+  // Error handling
+  error      String?
+  retryCount Int       @default(0)
+  
+  // Timestamps
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  
+  @@map("email_logs")
+}
+
+model DiscordGuild {
+  id          String   @id @default(uuid())
+  guildId     String   @unique // Discord guild ID
+  name        String
+  ownerId     String
+  
+  // Configuration
+  welcomeChannelId String?
+  roleChannelId    String?
+  botEnabled       Boolean @default(true)
+  
+  // Relations
+  members     DiscordMember[]
+  
+  // Timestamps
+  joinedAt    DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  @@map("discord_guilds")
+}
+
+model DiscordMember {
+  id       String   @id @default(uuid())
+  guildId  String
+  guild    DiscordGuild @relation(fields: [guildId], references: [id], onDelete: Cascade)
+  userId   String
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  // Discord data
+  discordId String
+  username  String
+  roles     String[] // Array of role IDs
+  
+  // Activity tracking
+  lastActiveAt DateTime?
+  messageCount Int      @default(0)
+  
+  // Timestamps
+  joinedAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  @@unique([guildId, userId])
+  @@map("discord_members")
+}
+
+// Enums
+enum SubscriptionStatus {
+  ACTIVE
+  CANCELED
+  PAUSED
+  PAST_DUE
+  INCOMPLETE
+  INCOMPLETE_EXPIRED
+  TRIALING
+  UNPAID
+}
+
+enum PlanType {
+  FREE
+  PRO
+  GROWTH
+  ENTERPRISE
+}
+
+enum AffiliateStatus {
+  PENDING
+  APPROVED
+  PAID
+  CANCELLED
+}
+
+enum CampaignType {
+  WELCOME
+  ONBOARDING
+  RETENTION
+  RE_ENGAGEMENT
+  CANCELLATION_PREVENTION
+  UPSELL
+}
+
+enum CampaignStatus {
+  DRAFT
+  SCHEDULED
+  SENDING
+  SENT
+  FAILED
+  CANCELLED
+}
+
+enum EmailStatus {
+  PENDING
+  SENT
+  DELIVERED
+  OPENED
+  CLICKED
+  BOUNCED
+  FAILED
+}
+

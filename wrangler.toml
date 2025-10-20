@@ -1,0 +1,19 @@
+name = "retainflow"
+compatibility_date = "2024-01-15"
+compatibility_flags = ["nodejs_compat"]
+
+[env.production]
+name = "retainflow-prod"
+
+[env.staging]
+name = "retainflow-staging"
+
+# Build configuration
+[build]
+command = "npm run build"
+cwd = "."
+
+# Pages configuration
+[[pages_builds]]
+build_command = "npm run build"
+build_output_directory = ".next"

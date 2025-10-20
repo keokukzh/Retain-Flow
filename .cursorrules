@@ -1,0 +1,213 @@
+# aidevelo.cursorrules
+
+# Projekt: AIDevelopment - aidevelo.ai SaaS Retention Tool
+# Beschreibung: Full-Stack SaaS Boilerplate mit AI-optimierten Workflows, Subscription und Integrationen
+
+# 1. API-Endpunkte
+api:
+  /auth/login:
+    method: POST
+    desc: Nutzer-Login via Email/Passwort
+    handler: authHandlers.loginHandler
+
+  /auth/register:
+    method: POST
+    desc: Nutzer-Registrierung mit Email-Verifizierung
+    handler: authHandlers.registerHandler
+
+  /subscriptions/create:
+    method: POST
+    desc: Abonnement anlegen / mit Stripe verbinden
+    handler: subscriptionHandlers.createSubscription
+
+  /subscriptions/cancel:
+    method: POST
+    desc: Kündigung initiieren
+    handler: subscriptionHandlers.cancelSubscription
+
+  /retention/offers:
+    method: GET
+    desc: Retention-Angebote abrufen je nach User-Kündigungsgrund
+    handler: retentionHandlers.listOffers
+
+  /discord/bot-event:
+    method: POST
+    desc: Events vom Discord-Bot empfangen (Willkommen, Rolle, Aktivität)
+    handler: discordHandlers.eventProcessor
+
+# 2. Authentifizierung (JWT-basiert)
+auth:
+  provider: jwt
+  secret: $ENV.JWT_SECRET
+  expiry: 3600 # Token 1 Stunde gültig
+
+# 3. Datenbank (PostgreSQL, Prisma ORM)
+database:
+  url: $ENV.DATABASE_URL
+  schema:
+    users:
+      id: uuid primary key
+      email: string unique
+      password_hash: string
+      createdAt: datetime
+      updatedAt: datetime
+    subscriptions:
+      id: uuid primary key
+      userId: uuid foreign key (users.id)
+      stripeSubscriptionId: string unique
+      status: enum (active, canceled, paused)
+      startedAt: datetime
+      endedAt: datetime
+    retentionOffers:
+      id: uuid primary key
+      reason: string
+      discountPercent: int
+      description: string
+      active: boolean
+
+# 4. Business Logic Module
+modules:
+  authHandlers:
+    loginHandler: |
+      # Login-Validierungscode hier (Password Hash Check, Token Gen etc)
+      def handler(req):
+        user = db.findUserByEmail(req.body.email)
+        if not user or not verifyPassword(req.body.password, user.password_hash):
+          return { status: 401, message: "Invalid credentials" }
+        token = generateJWTToken(user.id)
+        return { status: 200, token: token }
+
+    registerHandler: |
+      # Registrierungscode mit Email Bestätigung
+      def handler(req):
+        hashed = hashPassword(req.body.password)
+        user = db.createUser(email=req.body.email, password_hash=hashed)
+        sendVerificationEmail(user.email)
+        return { status: 201, message: "Registration successful, pls verify email." }
+
+# 5. Frontend-Komponenten (React + Framer)
+
+components:
+  LoginForm: |
+    import React, { useState } from 'react';
+    export default function LoginForm() {
+      const [email, setEmail] = useState('');
+      const [password, setPassword] = useState('');
+      async function handleSubmit(event) {
+        event.preventDefault();
+        const res = await fetch('/api/auth/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password }),
+        });
+        const data = await res.json();
+        if (res.ok) {
+          localStorage.setItem('token', data.token);
+          location.href = '/dashboard';
+        } else {
+          alert(data.message);
+        }
+      }
+      return (
+        <form onSubmit={handleSubmit}>
+          <input type="email" placeholder="Email" value={email} onChange={e => setEmail(e.target.value)} required />
+          <input type="password" placeholder="Password" value={password} onChange={e => setPassword(e.target.value)} required />
+          <button type="submit">Login</button>
+        </form>
+      );
+    }
+
+  PricingTable: |
+    import React from 'react';
+    export default function PricingTable() {
+      const plans = [
+        { name: 'Free', price: 0, features: ['50 Users', 'Basic Retention'] },
+        { name: 'Pro', price: 49, features: ['500 Users', 'Discord & Whop Integration'] },
+        { name: 'Growth', price: 199, features: ['10,000 Users', 'White-label API Access'] },
+      ];
+      return (
+        <div className="pricing-grid">
+          {plans.map(plan => (
+            <div key={plan.name} className="plan-card">
+              <h3>{plan.name}</h3>
+              <p>${plan.price}/mo</p>
+              <ul>{plan.features.map(f => <li key={f}>{f}</li>)}</ul>
+              <button>Start Free Trial</button>
+            </div>
+          ))}
+        </div>
+      );
+    }
+
+# 6. Automatisierungsregeln
+auto:
+  onUserSignup:
+    - trigger: sendWelcomeEmail
+    - trigger: startOnboardingSequence
+
+  onSubscriptionCancelled:
+    - trigger: sendExitSurvey
+    - trigger: presentRetentionOffers
+
+  onDiscordNewMember:
+    - trigger: sendWelcomeDM
+    - trigger: assignRole('Creator')
+
+# 7. Umwelt-Variablen (Environment Setup)
+env:
+  DATABASE_URL: postgres://user:password@host/dbname
+  JWT_SECRET: supersecuresecret
+  STRIPE_API_KEY: sk_test_XXXXXXXXXXXXXXXXXXXX
+  DISCORD_BOT_TOKEN: OTExMjM0NTY3ODkw.YYYYYYYYYYYYYYYYYYYYYY
+  EMAIL_SERVICE_API_KEY: res_ABCDEF123456
+
+# 8. Pipeline Configuration
+pipeline:
+  - name: Setup Dependencies & DB
+    action: run
+    script: |
+      npm ci
+      npx prisma migrate deploy
+
+  - name: Lint & Format Check
+    action: run
+    script: npx eslint . --max-warnings=0
+
+  - name: Unit Tests
+    action: run
+    script: npx jest --coverage --passWithNoTests
+
+  - name: Build Backend API
+    action: run
+    script: npm run build:api
+
+  - name: Build Frontend
+    action: run
+    script: npm run build:frontend
+
+  - name: Setup Cron Jobs / Automations
+    action: run
+    script: node automation/setupCronJobs.js
+
+  - name: Visual Regression Test
+    action: run
+    script: npx backstop test || (npx backstop approve && echo 'Visual tests approved')
+
+  - name: Deploy to Staging
+    action: run
+    script: npm run deploy:staging
+
+  - name: Manual QA Approval
+    action: manual
+    desc: "Review visual & functional quality before production"
+
+  - name: Deploy to Production
+    action: run
+    script: npm run deploy:prod
+
+  - name: Notify Team
+    action: notify
+    channels:
+      - discord: 'DISCORD_WEBHOOK_URL'
+
+# Ende der .cursorrules

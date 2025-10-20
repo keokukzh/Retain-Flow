@@ -1,0 +1,69 @@
+{
+  "id": "aidevelo-visual-test",
+  "viewports": [
+    {
+      "label": "desktop",
+      "width": 1280,
+      "height": 800
+    },
+    {
+      "label": "tablet",
+      "width": 768,
+      "height": 1024
+    },
+    {
+      "label": "mobile",
+      "width": 375,
+      "height": 667
+    }
+  ],
+  "scenarios": [
+    {
+      "label": "Landing Hero",
+      "url": "http://localhost:3000/",
+      "selectors": ["#hero-section"],
+      "delay": 1000
+    },
+    {
+      "label": "Pricing Cards",
+      "url": "http://localhost:3000/pricing",
+      "selectors": [".pricing-card"],
+      "delay": 1000
+    },
+    {
+      "label": "Dashboard",
+      "url": "http://localhost:3000/dashboard",
+      "selectors": ["#dashboard-main"],
+      "delay": 1000,
+      "cookiePath": "tests/e2e/cookies.json"
+    },
+    {
+      "label": "Login Page",
+      "url": "http://localhost:3000/login",
+      "selectors": ["#login-form"],
+      "delay": 1000
+    },
+    {
+      "label": "Register Page",
+      "url": "http://localhost:3000/register",
+      "selectors": ["#register-form"],
+      "delay": 1000
+    }
+  ],
+  "paths": {
+    "bitmaps_reference": "backstop_data/bitmaps_reference",
+    "bitmaps_test": "backstop_data/bitmaps_test",
+    "engine_scripts": "backstop_data/engine_scripts",
+    "html_report": "backstop_data/html_report",
+    "ci_report": "backstop_data/ci_report"
+  },
+  "report": ["browser", "CI"],
+  "engine": "puppeteer",
+  "engineOptions": {
+    "args": ["--no-sandbox"]
+  },
+  "asyncCaptureLimit": 5,
+  "asyncCompareLimit": 50,
+  "debug": false,
+  "debugWindow": false
+}
