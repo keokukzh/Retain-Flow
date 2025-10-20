@@ -68,8 +68,8 @@ RetainFlow is a comprehensive SaaS platform designed to help creators and commun
 
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/retainflow/retainflow.git
-   cd retainflow
+   git clone https://github.com/keokukzh/Retain-Flow.git
+   cd Retain-Flow
    ```
 
 2. **Install dependencies**
