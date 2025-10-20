@@ -1,10 +1,10 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   experimental: {
-    appDir: true,
     serverComponentsExternalPackages: ['@prisma/client'],
   },
-  output: 'standalone',
+  output: 'export',
+  trailingSlash: true,
   images: {
     domains: ['localhost', 'aidevelo.ai'],
     formats: ['image/webp', 'image/avif'],
