@@ -2,10 +2,13 @@
 const nextConfig = {
   experimental: {
     appDir: true,
+    serverComponentsExternalPackages: ['@prisma/client'],
   },
+  output: 'standalone',
   images: {
     domains: ['localhost', 'aidevelo.ai'],
     formats: ['image/webp', 'image/avif'],
+    unoptimized: true, // For Cloudflare Pages
   },
   env: {
     CUSTOM_KEY: process.env.CUSTOM_KEY,
