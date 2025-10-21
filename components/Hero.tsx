@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import Image from 'next/image';
+// import Image from 'next/image'; // Using img for static export
 import Link from 'next/link';
 
 export default function Hero() {
@@ -31,7 +31,7 @@ export default function Hero() {
           <div className="mb-8 flex justify-center">
             <div className="relative group">
               <div className="relative w-32 h-32 flex items-center justify-center">
-                <Image
+                <img
                   src="/veloa-logo.png"
                   alt="VELOA Logo"
                   width={128}

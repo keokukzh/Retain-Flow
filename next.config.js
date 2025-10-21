@@ -9,6 +9,8 @@ const nextConfig = {
     domains: ['localhost', 'aidevelo.ai'],
     formats: ['image/webp', 'image/avif'],
     unoptimized: true, // For Cloudflare Pages
+    loader: 'custom',
+    loaderFile: './imageLoader.js',
   },
   env: {
     CUSTOM_KEY: process.env.CUSTOM_KEY,

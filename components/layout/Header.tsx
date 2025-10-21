@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import Image from 'next/image';
+// import Image from 'next/image'; // Using img for static export
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -39,7 +39,7 @@ export default function Header() {
           <div className="flex items-center">
             <Link href="/" className="flex items-center space-x-3 group">
               <div className="relative w-12 h-12 flex items-center justify-center">
-                <Image
+                <img
                   src="/veloa-logo.png"
                   alt="VELOA Logo"
                   width={48}

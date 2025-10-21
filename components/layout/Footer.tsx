@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import Image from 'next/image';
+// import Image from 'next/image'; // Using img for static export
 
 export default function Footer() {
   const currentYear = new Date().getFullYear();
@@ -84,7 +84,7 @@ export default function Footer() {
           <div className="lg:col-span-2">
             <div className="flex items-center space-x-3 mb-6 group">
               <div className="relative w-12 h-12 flex items-center justify-center">
-                <Image
+                <img
                   src="/veloa-logo.png"
                   alt="VELOA Logo"
                   width={48}
