@@ -206,10 +206,6 @@ a {
   }
 }
 
-.animation-delay-1000 {
-  animation-delay: 1s;
-}
-
 /* Print styles */
 @media print {
   .no-print {

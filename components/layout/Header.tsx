@@ -1,8 +1,8 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import P5AnimatedHeader from '../P5AnimatedHeader';
+import Image from 'next/image';
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -33,17 +33,29 @@ export default function Header() {
           : 'bg-transparent'
       }`}
     >
-      {/* P5 Animated Header - Only Logo */}
-      <div className="flex justify-center pt-4">
-        <P5AnimatedHeader className="w-full max-w-md" />
-      </div>
-
-      {/* Navigation Overlay */}
       <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Animated RF Logo - Top Center */}
+        <div className="flex justify-center pt-2 pb-1">
+          <div className="relative">
+            <div className="w-12 h-12 bg-gradient-to-r from-primary-500 to-blue-500 rounded-full glow-lg animate-pulse-slow flex items-center justify-center">
+              <span className="text-white font-bold text-lg">RF</span>
+            </div>
+            <div className="absolute inset-0 rounded-full bg-gradient-to-r from-primary-500 to-blue-500 opacity-20 animate-ping" />
+          </div>
+        </div>
+
         <div className="flex items-center justify-between h-16">
-          {/* Left side - Empty for balance */}
+          {/* Logo - Left side */}
           <div className="flex items-center">
             <Link href="/" className="flex items-center space-x-3">
+              <Image
+                src="/logo.png"
+                alt="RetainFlow Logo"
+                width={50}
+                height={50}
+                className="object-contain"
+                priority
+              />
               <span
                 className={`text-xl font-bold transition-colors ${
                   isScrolled ? 'text-gray-900' : 'text-white'
@@ -93,7 +105,6 @@ export default function Header() {
           <div className="md:hidden">
             <button
               onClick={() => setIsMenuOpen(!isMenuOpen)}
-              title={isMenuOpen ? 'Close menu' : 'Open menu'}
               className={`p-2 rounded-md transition-colors ${
                 isScrolled
                   ? 'text-gray-700 hover:text-primary-600'

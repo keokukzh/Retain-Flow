@@ -14,7 +14,7 @@ export default function Hero() {
   return (
     <section 
       id="hero-section"
-      className="relative min-h-screen flex items-center justify-center overflow-hidden circuit-bg pt-[350px]"
+      className="relative min-h-screen flex items-center justify-center overflow-hidden circuit-bg"
     >
       {/* Background gradient overlay */}
       <div className="absolute inset-0 bg-gradient-to-br from-primary-950/80 via-secondary-900/60 to-primary-900/80" />
@@ -22,11 +22,20 @@ export default function Hero() {
       {/* Animated background elements */}
       <div className="absolute inset-0">
         <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-primary-500/10 rounded-full blur-3xl animate-pulse" />
-        <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl animate-pulse animation-delay-1000" />
+        <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }} />
       </div>
 
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
         <div className={`transition-all duration-1000 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
+          {/* Animated Logo */}
+          <div className="mb-8 flex justify-center">
+            <div className="relative">
+              <div className="w-30 h-30 bg-gradient-to-r from-primary-500 to-blue-500 rounded-full glow-lg animate-pulse-slow flex items-center justify-center">
+                <span className="text-white font-bold text-2xl">RF</span>
+              </div>
+              <div className="absolute inset-0 rounded-full bg-gradient-to-r from-primary-500 to-blue-500 opacity-20 animate-ping" />
+            </div>
+          </div>
 
           {/* Main Headline */}
           <h1 className="text-4xl sm:text-5xl lg:text-7xl font-bold text-white mb-6 leading-tight">
