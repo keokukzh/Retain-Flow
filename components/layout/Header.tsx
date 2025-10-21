@@ -34,6 +34,16 @@ export default function Header() {
       }`}
     >
       <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Animated RF Logo - Top Center */}
+        <div className="flex justify-center pt-2 pb-1">
+          <div className="relative">
+            <div className="w-12 h-12 bg-gradient-to-r from-primary-500 to-blue-500 rounded-full glow-lg animate-pulse-slow flex items-center justify-center">
+              <span className="text-white font-bold text-lg">RF</span>
+            </div>
+            <div className="absolute inset-0 rounded-full bg-gradient-to-r from-primary-500 to-blue-500 opacity-20 animate-ping" />
+          </div>
+        </div>
+
         <div className="flex items-center justify-between h-16">
           {/* Logo - Left side */}
           <div className="flex items-center">
