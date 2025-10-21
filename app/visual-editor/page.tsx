@@ -1,14 +1,22 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import grapesjs from 'grapesjs';
 import 'grapesjs/dist/css/grapes.min.css';
 import 'grapesjs-preset-webpage';
 import 'grapesjs-blocks-basic';
+import { RetainFlowBlocks } from '@/components/editor/blocks/RetainFlowBlocks';
+import { RetainFlowStyles } from '@/components/editor/blocks/RetainFlowStyles';
+import EditorToolbar from '@/components/editor/EditorToolbar';
+import TemplatesPanel from '@/components/editor/TemplatesPanel';
+import ExportPanel from '@/components/editor/ExportPanel';
 
 export default function VisualEditor() {
   const editorRef = useRef<HTMLDivElement>(null);
   const grapesRef = useRef<any>(null);
+  const [templates, setTemplates] = useState<any[]>([]);
+  const [showTemplates, setShowTemplates] = useState(false);
+  const [showExport, setShowExport] = useState(false);
 
   useEffect(() => {
     if (editorRef.current && !grapesRef.current) {
@@ -135,7 +143,15 @@ export default function VisualEditor() {
               select: true,
               content: { type: 'image' },
               activate: true,
-            }
+            },
+            // Add RetainFlow blocks
+            ...RetainFlowBlocks.map(block => ({
+              id: block.id,
+              label: block.label,
+              content: block.content,
+              category: block.category,
+              attributes: block.attributes,
+            }))
           ]
         },
         layerManager: {
@@ -148,6 +164,10 @@ export default function VisualEditor() {
           appendTo: '.styles-container'
         }
       });
+
+      // Add RetainFlow styles
+      const cssComposer = grapesRef.current.CssComposer;
+      cssComposer.addRules(RetainFlowStyles);
 
       // Add custom commands
       grapesRef.current.Commands.add('show-layers', {
@@ -207,37 +227,153 @@ export default function VisualEditor() {
     };
   }, []);
 
-  const handleSave = () => {
+  // Load templates
+  useEffect(() => {
+    const loadTemplates = async () => {
+      try {
+        const response = await fetch('/api/templates');
+        const data = await response.json();
+        if (data.success) {
+          setTemplates(data.templates);
+        }
+      } catch (error) {
+        // console.error('Error loading templates:', error);
+      }
+    };
+    loadTemplates();
+  }, []);
+
+  const handleSave = async () => {
     if (grapesRef.current) {
       const html = grapesRef.current.getHtml();
       const css = grapesRef.current.getCss();
-      // Save to localStorage for demo
-      localStorage.setItem('retainflow-editor-html', html);
-      localStorage.setItem('retainflow-editor-css', css);
-      alert('Content saved! Check localStorage for HTML/CSS output.');
+      
+      try {
+        // Save to database (demo with mock userId)
+        const response = await fetch('/api/editor/save', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            userId: 'demo-user-id',
+            name: `Project ${new Date().toLocaleString()}`,
+            html,
+            css,
+            isPublic: false,
+            tags: ['visual-editor'],
+          }),
+        });
+
+        if (response.ok) {
+          alert('Content saved to database!');
+        } else {
+          // Fallback to localStorage
+          localStorage.setItem('retainflow-editor-html', html);
+          localStorage.setItem('retainflow-editor-css', css);
+          alert('Content saved to localStorage!');
+        }
+      } catch (error) {
+        // Fallback to localStorage
+        localStorage.setItem('retainflow-editor-html', html);
+        localStorage.setItem('retainflow-editor-css', css);
+        alert('Content saved to localStorage!');
+      }
+    }
+  };
+
+  const handleExport = async (format: string) => {
+    if (grapesRef.current) {
+      const html = grapesRef.current.getHtml();
+      const css = grapesRef.current.getCss();
+
+      try {
+        const response = await fetch('/api/editor/export', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            html,
+            css,
+            format,
+            componentName: 'CustomComponent',
+          }),
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          
+          // Download file
+          const blob = new Blob([JSON.stringify(data.data, null, 2)], {
+            type: 'application/json',
+          });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = `retainflow-export.${format}`;
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          URL.revokeObjectURL(url);
+          
+          alert(`Exported as ${format.toUpperCase()}!`);
+        }
+      } catch (error) {
+        // console.error('Export error:', error);
+        alert('Export failed!');
+      }
+    }
+  };
+
+  const loadTemplate = async (templateId: string) => {
+    try {
+      const response = await fetch(`/api/templates/${templateId}`);
+      const data = await response.json();
+      
+      if (data.success && grapesRef.current) {
+        const template = data.template;
+        
+        // Clear current content
+        grapesRef.current.runCommand('core:canvas-clear');
+        
+        // Load template HTML
+        grapesRef.current.setComponents(template.html);
+        
+        // Load template CSS
+        grapesRef.current.setStyle(template.css);
+        
+        alert(`Template "${template.name}" loaded!`);
+        setShowTemplates(false);
+      }
+    } catch (error) {
+      // console.error('Error loading template:', error);
+      alert('Failed to load template!');
     }
   };
 
   return (
     <div className="min-h-screen bg-gray-100">
       {/* Toolbar */}
-      <div className="bg-white shadow-sm border-b p-4 flex justify-between items-center">
-        <h1 className="text-2xl font-bold text-gray-800">RetainFlow Visual Editor</h1>
-        <div className="flex space-x-4">
-          <button
-            onClick={handleSave}
-            className="px-4 py-2 bg-green-600 text-white rounded-lg font-medium hover:bg-green-700 transition-colors"
-          >
-            Save Changes
-          </button>
-          <button
-            onClick={() => grapesRef.current?.runCommand('core:canvas-clear')}
-            className="px-4 py-2 bg-red-600 text-white rounded-lg font-medium hover:bg-red-700 transition-colors"
-          >
-            Clear
-          </button>
-        </div>
-      </div>
+      <EditorToolbar
+        onTemplatesClick={() => setShowTemplates(!showTemplates)}
+        onExportClick={() => setShowExport(!showExport)}
+        onSave={handleSave}
+        onClear={() => grapesRef.current?.runCommand('core:canvas-clear')}
+      />
+
+      {/* Templates Panel */}
+      {showTemplates && (
+        <TemplatesPanel
+          templates={templates}
+          onLoadTemplate={loadTemplate}
+          onClose={() => setShowTemplates(false)}
+        />
+      )}
+
+      {/* Export Panel */}
+      {showExport && (
+        <ExportPanel
+          onExport={handleExport}
+          onClose={() => setShowExport(false)}
+        />
+      )}
 
       {/* Editor Layout */}
       <div className="editor-row">

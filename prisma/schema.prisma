@@ -31,6 +31,7 @@ model User {
   affiliateReferrals AffiliateReferral[] @relation("Referrer")
   affiliateEarnings AffiliateReferral[] @relation("EarnedBy")
   discordMembers    DiscordMember[]
+  editorProjects    EditorProject[]
   
   @@map("users")
 }
@@ -276,5 +277,27 @@ enum EmailStatus {
   CLICKED
   BOUNCED
   FAILED
+}
+
+model EditorProject {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  // Project details
+  name      String
+  html      String   @db.Text
+  css       String   @db.Text
+  thumbnail String?  // Base64 or URL
+  
+  // Metadata
+  isPublic  Boolean  @default(false)
+  tags      String[] // Array of tags for categorization
+  
+  // Timestamps
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  @@map("editor_projects")
 }
 
