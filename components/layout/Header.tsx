@@ -34,10 +34,45 @@ export default function Header() {
       }`}
     >
       <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Top Row - Logo and CTA */}
-        <div className="flex items-center justify-between h-20">
-          {/* Left CTA */}
-          <div className="hidden md:flex items-center">
+        <div className="flex items-center justify-between h-16">
+          {/* Logo - Left side */}
+          <div className="flex items-center">
+            <Link href="/" className="flex items-center space-x-3">
+              <Image
+                src="/logo.png"
+                alt="RetainFlow Logo"
+                width={50}
+                height={50}
+                className="object-contain"
+                priority
+              />
+              <span
+                className={`text-xl font-bold transition-colors ${
+                  isScrolled ? 'text-gray-900' : 'text-white'
+                }`}
+              >
+                RetainFlow
+              </span>
+            </Link>
+          </div>
+
+          {/* Desktop Navigation - Center */}
+          <div className="hidden md:flex items-center space-x-8">
+            {navigation.map((item) => (
+              <Link
+                key={item.name}
+                href={item.href}
+                className={`text-sm font-medium transition-colors hover:text-primary-600 ${
+                  isScrolled ? 'text-gray-700' : 'text-white/90'
+                }`}
+              >
+                {item.name}
+              </Link>
+            ))}
+          </div>
+
+          {/* Desktop CTA Buttons - Right side */}
+          <div className="hidden md:flex items-center space-x-4">
             <Link
               href="/login"
               className={`text-sm font-medium transition-colors ${
@@ -48,27 +83,9 @@ export default function Header() {
             >
               Sign In
             </Link>
-          </div>
-
-          {/* Center Logo - MUCH BIGGER */}
-          <div className="flex-1 flex justify-center">
-            <Link href="/" className="flex items-center">
-              <Image
-                src="/logo.png"
-                alt="RetainFlow Logo"
-                width={120}
-                height={120}
-                className="object-contain hover:scale-105 transition-transform duration-300"
-                priority
-              />
-            </Link>
-          </div>
-
-          {/* Right CTA */}
-          <div className="hidden md:flex items-center">
             <Link
               href="/register"
-              className="bg-primary-600 hover:bg-primary-700 text-white text-sm font-semibold py-2 px-6 rounded-lg transition-colors btn-glow"
+              className="bg-primary-600 hover:bg-primary-700 text-white text-sm font-semibold py-2 px-4 rounded-lg transition-colors btn-glow"
             >
               Get Started
             </Link>
@@ -107,23 +124,6 @@ export default function Header() {
                 )}
               </svg>
             </button>
-          </div>
-        </div>
-
-        {/* Bottom Row - Navigation */}
-        <div className="hidden md:flex justify-center pb-4">
-          <div className="flex items-center space-x-8">
-            {navigation.map((item) => (
-              <Link
-                key={item.name}
-                href={item.href}
-                className={`text-sm font-medium transition-colors hover:text-primary-600 ${
-                  isScrolled ? 'text-gray-700' : 'text-white/90'
-                }`}
-              >
-                {item.name}
-              </Link>
-            ))}
           </div>
         </div>
 
