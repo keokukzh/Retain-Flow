@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-// import Image from 'next/image'; // Using img for static export
+import Image from 'next/image';
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -35,23 +35,11 @@ export default function Header() {
     >
       <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
-          {/* Logo */}
+          {/* Logo - Left side */}
           <div className="flex items-center">
-            <Link href="/" className="flex items-center space-x-3 group">
-              <div className="relative w-12 h-12 flex items-center justify-center">
-                <img
-                  src="/veloa-logo.png"
-                  alt="VELOA Logo"
-                  width={48}
-                  height={48}
-                  className="w-12 h-12 object-contain transition-all duration-300 group-hover:scale-110 group-hover:brightness-110"
-                  style={{
-                    filter: isScrolled 
-                      ? 'brightness(0) saturate(100%) invert(20%) sepia(100%) saturate(2000%) hue-rotate(200deg) brightness(0.8) contrast(1.2)'
-                      : 'brightness(0) saturate(100%) invert(100%) sepia(100%) saturate(2000%) hue-rotate(200deg) brightness(1.2) contrast(1.2)'
-                  }}
-                />
-                <div className="absolute inset-0 rounded-full bg-blue-500/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 animate-pulse" />
+            <Link href="/" className="flex items-center space-x-3">
+              <div className="w-10 h-10 bg-primary-600 rounded-lg flex items-center justify-center">
+                <span className="text-white font-bold text-sm">RF</span>
               </div>
               <span
                 className={`text-xl font-bold transition-colors ${
@@ -63,7 +51,21 @@ export default function Header() {
             </Link>
           </div>
 
-          {/* Desktop Navigation */}
+          {/* Center Logo */}
+          <div className="absolute left-1/2 transform -translate-x-1/2">
+            <Link href="/" className="flex items-center">
+              <Image
+                src="/logo.png"
+                alt="RetainFlow Logo"
+                width={60}
+                height={60}
+                className="object-contain"
+                priority
+              />
+            </Link>
+          </div>
+
+          {/* Desktop Navigation - Right side */}
           <div className="hidden md:flex items-center space-x-8">
             {navigation.map((item) => (
               <Link

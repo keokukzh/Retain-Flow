@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-// import Image from 'next/image'; // Using img for static export
+// import Image from 'next/image'; // Temporarily disabled for deployment
 import Link from 'next/link';
 
 export default function Hero() {
@@ -27,26 +27,13 @@ export default function Hero() {
 
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
         <div className={`transition-all duration-1000 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
-          {/* Animated VELOA Logo */}
+          {/* Animated Logo */}
           <div className="mb-8 flex justify-center">
-            <div className="relative group">
-              <div className="relative w-32 h-32 flex items-center justify-center">
-                <img
-                  src="/veloa-logo.png"
-                  alt="VELOA Logo"
-                  width={128}
-                  height={128}
-                  className="w-32 h-32 object-contain veloa-logo transition-all duration-500 group-hover:scale-110"
-                />
-                {/* Glowing effect */}
-                <div className="absolute inset-0 rounded-full bg-blue-500/30 opacity-0 group-hover:opacity-100 transition-opacity duration-500 animate-pulse" />
-                {/* Circuit board glow */}
-                <div className="absolute inset-0 rounded-full border-2 border-blue-400/50 opacity-0 group-hover:opacity-100 transition-opacity duration-500 animate-ping" />
+            <div className="relative">
+              <div className="w-30 h-30 bg-gradient-to-r from-primary-500 to-blue-500 rounded-full glow-lg animate-pulse-slow flex items-center justify-center">
+                <span className="text-white font-bold text-2xl">RF</span>
               </div>
-              {/* Floating particles effect */}
-              <div className="absolute -top-2 -right-2 w-4 h-4 bg-blue-400 rounded-full particle" style={{ animationDelay: '0.5s' }} />
-              <div className="absolute -bottom-2 -left-2 w-3 h-3 bg-primary-400 rounded-full particle" style={{ animationDelay: '1s' }} />
-              <div className="absolute top-1/2 -left-4 w-2 h-2 bg-green-400 rounded-full particle" style={{ animationDelay: '1.5s' }} />
+              <div className="absolute inset-0 rounded-full bg-gradient-to-r from-primary-500 to-blue-500 opacity-20 animate-ping" />
             </div>
           </div>
 
