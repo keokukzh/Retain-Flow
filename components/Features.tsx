@@ -1,6 +1,6 @@
 'use client';
 
-import FeatureCard from './FeatureCard';
+import FeatureIntegrationCard from './FeatureIntegrationCard';
 import { BoltIcon, ChartBarIcon, SparklesIcon } from '@heroicons/react/24/outline';
 
 export default function Features() {
@@ -13,17 +13,17 @@ export default function Features() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <FeatureCard
+          <FeatureIntegrationCard
             icon={<BoltIcon className="w-6 h-6" />}
             title="Plug & Play Integrations"
             description="Connect Discord, Whop, and Shopify in minutes. No code required."
           />
-          <FeatureCard
+          <FeatureIntegrationCard
             icon={<SparklesIcon className="w-6 h-6" />}
             title="AI-Powered Prediction"
             description="Predict churn before it happens and trigger the right action at the right time."
           />
-          <FeatureCard
+          <FeatureIntegrationCard
             icon={<ChartBarIcon className="w-6 h-6" />}
             title="Actionable Analytics"
             description="Understand what drives retention and measure the impact of your campaigns."

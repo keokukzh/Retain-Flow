@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { CheckIcon, XMarkIcon } from '@heroicons/react/24/outline';
+import PricingCard from './PricingCard';
 
 interface Plan {
   name: string;
@@ -204,86 +204,19 @@ export default function PricingTable() {
         {/* Pricing Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
           {plans.map((plan) => (
-            <div
+            <PricingCard
               key={plan.name}
-              className={`relative bg-white rounded-2xl shadow-lg border-2 p-8 transition-transform ${
-                plan.popular
-                  ? 'border-primary-500 ring-2 ring-primary-500/20 md:scale-105 shadow-xl'
-                  : 'border-gray-200'
-              }`}
-            >
-              {plan.popular && (
-                <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
-                  <span className="bg-primary-500 text-white px-4 py-1 rounded-full text-sm font-medium">
-                    Most Popular
-                  </span>
-                </div>
-              )}
-
-              <div className="text-center mb-8">
-                <h3 className="text-2xl font-bold text-gray-900 mb-2">{plan.name}</h3>
-                <p className="text-gray-600 mb-4">{plan.description}</p>
-                
-                <div className="mb-4">
-                  <span className="text-5xl font-bold text-gray-900">
-                    {getPrice(plan)}
-                  </span>
-                  {plan.price > 0 && (
-                    <span className="text-gray-600 ml-2">
-                      /{billingPeriod === 'yearly' ? 'month billed yearly' : plan.period}
-                    </span>
-                  )}
-                </div>
-
-                {billingPeriod === 'yearly' && getYearlySavings(plan) && (
-                  <p className="text-green-600 text-sm font-medium">
-                    {getYearlySavings(plan)}
-                  </p>
-                )}
-              </div>
-
-              {/* Features */}
-              <div className="space-y-4 mb-8">
-                {plan.features.map((feature) => (
-                  <div key={feature} className="flex items-start">
-                    <CheckIcon className="w-5 h-5 text-green-500 mt-0.5 mr-3 flex-shrink-0" />
-                    <span className="text-gray-700">{feature}</span>
-                  </div>
-                ))}
-                
-                {plan.limitations.map((limitation) => (
-                  <div key={limitation} className="flex items-start opacity-60">
-                    <XMarkIcon className="w-5 h-5 text-gray-400 mt-0.5 mr-3 flex-shrink-0" />
-                    <span className="text-gray-500">{limitation}</span>
-                  </div>
-                ))}
-              </div>
-
-              {/* CTA Button */}
-              <button
-                onClick={() => handleSubscribe(plan)}
-                disabled={loading === plan.name}
-                className={`w-full block text-center py-3 px-6 rounded-xl font-semibold transition-all disabled:opacity-50 disabled:cursor-not-allowed ${
-                  plan.popular
-                    ? 'bg-primary-600 hover:bg-primary-700 text-white btn-glow'
-                    : plan.name === 'Free'
-                    ? 'bg-gray-100 hover:bg-gray-200 text-gray-900'
-                    : 'bg-gray-900 hover:bg-gray-800 text-white'
-                }`}
-              >
-                {loading === plan.name ? (
-                  <>
-                    <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white inline" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                    </svg>
-                    Processing...
-                  </>
-                ) : (
-                  plan.cta
-                )}
-              </button>
-            </div>
+              title={plan.name}
+              description={plan.description}
+              priceLabel={getPrice(plan)}
+              periodLabel={plan.price > 0 ? (billingPeriod === 'yearly' ? 'month billed yearly' : plan.period) : undefined}
+              features={plan.features}
+              limitations={plan.limitations}
+              ctaLabel={loading === plan.name ? 'Processing…' : plan.cta}
+              onCta={() => handleSubscribe(plan)}
+              selected={!!plan.popular}
+              disabled={loading === plan.name}
+            />
           ))}
         </div>
 

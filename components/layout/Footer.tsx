@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-// import Image from 'next/image'; // Temporarily disabled for deployment
+import FooterNewsletter from '../FooterNewsletter';
 
 export default function Footer() {
   const currentYear = new Date().getFullYear();
@@ -186,16 +186,7 @@ export default function Footer() {
             <p className="text-gray-400 mb-4">
               Get the latest updates on new features, tips, and best practices for community retention.
             </p>
-            <div className="flex">
-              <input
-                type="email"
-                placeholder="Enter your email"
-                className="flex-1 px-4 py-2 bg-gray-800 border border-gray-700 rounded-l-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-              />
-              <button className="bg-primary-600 hover:bg-primary-700 px-6 py-2 rounded-r-lg font-semibold transition-colors">
-                Subscribe
-              </button>
-            </div>
+            <FooterNewsletter />
           </div>
         </div>
 

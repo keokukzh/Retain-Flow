@@ -1,7 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-// import Image from 'next/image'; // Temporarily disabled for deployment
+import Image from 'next/image';
+import FeatureIntegrationCard from './FeatureIntegrationCard';
 
 interface Integration {
   name: string;
@@ -137,88 +138,28 @@ export default function IntegrationCards() {
         {/* Integration Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16">
           {integrations.map((integration) => (
-            <div
-              key={integration.name}
-              className={`bg-white rounded-xl shadow-lg border border-gray-200 p-6 cursor-pointer transition-all duration-300 hover:shadow-xl hover:-translate-y-1 ${
-                selectedIntegration?.name === integration.name
-                  ? 'ring-2 ring-primary-500 border-primary-500'
-                  : ''
-              }`}
-              onClick={() => setSelectedIntegration(integration)}
-            >
-              {/* Integration Header */}
-              <div className="flex items-center justify-between mb-4">
-                <div className="flex items-center">
-                  <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center mr-4 overflow-hidden">
-                    <img src={integration.logo} alt={`${integration.name} logo`} className="w-10 h-10 object-contain" />
-                  </div>
-                  <h3 className="text-xl font-semibold text-gray-900">
-                    {integration.name}
-                  </h3>
-                </div>
-                <span
-                  className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(
-                    integration.status
-                  )}`}
-                >
-                  {getStatusText(integration.status)}
-                </span>
+              <div key={integration.name} onClick={() => setSelectedIntegration(integration)} className="cursor-pointer">
+                <FeatureIntegrationCard
+                  icon={<Image src={integration.logo} alt={`${integration.name} logo`} width={44} height={44} />}
+                  title={integration.name}
+                  description={integration.description}
+                  features={integration.features}
+                  statusBadge={<span className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(integration.status)}`}>{getStatusText(integration.status)}</span>}
+                  cta={
+                    <div className="mt-4">
+                      {integration.status === 'available' && (
+                        <button className="w-full bg-primary-600 hover:bg-primary-700 text-white font-semibold py-2 px-4 rounded-lg transition-colors">Connect Now</button>
+                      )}
+                      {integration.status === 'coming-soon' && (
+                        <button disabled className="w-full bg-gray-200 text-gray-500 font-semibold py-2 px-4 rounded-lg cursor-not-allowed">Coming Soon</button>
+                      )}
+                      {integration.status === 'connected' && (
+                        <button className="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded-lg transition-colors">Manage Connection</button>
+                      )}
+                    </div>
+                  }
+                />
               </div>
-
-              {/* Description */}
-              <p className="text-gray-600 mb-4 text-sm leading-relaxed">
-                {integration.description}
-              </p>
-
-              {/* Features Preview */}
-              <div className="space-y-2">
-                {integration.features.slice(0, 3).map((feature, index) => (
-                  <div key={index} className="flex items-center text-sm text-gray-500">
-                    <svg
-                      className="w-4 h-4 text-green-500 mr-2 flex-shrink-0"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M5 13l4 4L19 7"
-                      />
-                    </svg>
-                    {feature}
-                  </div>
-                ))}
-                {integration.features.length > 3 && (
-                  <div className="text-sm text-gray-400">
-                    +{integration.features.length - 3} more features
-                  </div>
-                )}
-              </div>
-
-              {/* Action Button */}
-              <div className="mt-6">
-                {integration.status === 'available' && (
-                  <button className="w-full bg-primary-600 hover:bg-primary-700 text-white font-semibold py-2 px-4 rounded-lg transition-colors">
-                    Connect Now
-                  </button>
-                )}
-                {integration.status === 'coming-soon' && (
-                  <button
-                    disabled
-                    className="w-full bg-gray-200 text-gray-500 font-semibold py-2 px-4 rounded-lg cursor-not-allowed"
-                  >
-                    Coming Soon
-                  </button>
-                )}
-                {integration.status === 'connected' && (
-                  <button className="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded-lg transition-colors">
-                    Manage Connection
-                  </button>
-                )}
-              </div>
-            </div>
           ))}
         </div>
 
