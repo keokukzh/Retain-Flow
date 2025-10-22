@@ -1,28 +1,25 @@
-import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
+import jwt from 'jsonwebtoken';
 import { PrismaClient } from '@prisma/client';
 
 export async function onRequestPost(context: { request: Request; env: any }) {
   try {
     const { name, email, password } = await context.request.json();
-    
-    // Validate input
+
     if (!name || !email || !password) {
-      return json({ message: 'Name, email, and password are required' }, 400);
+      return new Response(JSON.stringify({ message: 'Name, email and password are required' }), {
+        status: 400,
+        headers: { 'Content-Type': 'application/json' },
+      });
     }
 
-    // Validate email format
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
-      return json({ message: 'Invalid email format' }, 400);
+    if (password.length < 6) {
+      return new Response(JSON.stringify({ message: 'Password must be at least 6 characters' }), {
+        status: 400,
+        headers: { 'Content-Type': 'application/json' },
+      });
     }
 
-    // Validate password strength
-    if (password.length < 8) {
-      return json({ message: 'Password must be at least 8 characters long' }, 400);
-    }
-
-    // Initialize Prisma client
     const prisma = new PrismaClient({
       datasources: {
         db: {
@@ -38,7 +35,10 @@ export async function onRequestPost(context: { request: Request; env: any }) {
       });
 
       if (existingUser) {
-        return json({ message: 'User with this email already exists' }, 409);
+        return new Response(JSON.stringify({ message: 'User already exists with this email' }), {
+          status: 409,
+          headers: { 'Content-Type': 'application/json' },
+        });
       }
 
       // Hash password
@@ -51,7 +51,7 @@ export async function onRequestPost(context: { request: Request; env: any }) {
           name,
           email,
           passwordHash,
-          emailVerified: false, // Will be verified via email
+          emailVerified: false, // Will be true after email verification
         },
       });
 
@@ -59,17 +59,15 @@ export async function onRequestPost(context: { request: Request; env: any }) {
       const token = jwt.sign(
         { 
           userId: user.id, 
-          email: user.email,
-          provider: 'password' 
-        }, 
-        context.env.JWT_SECRET, 
-        { expiresIn: '1h' }
+          email: user.email, 
+          name: user.name,
+          provider: 'email'
+        },
+        context.env.JWT_SECRET,
+        { expiresIn: '7d' }
       );
 
-      // TODO: Send verification email
-      // await sendVerificationEmail(email, user.id);
-
-      const res = json({ 
+      const response = new Response(JSON.stringify({ 
         message: 'Registration successful. Please check your email to verify your account.',
         user: {
           id: user.id,
@@ -77,26 +75,23 @@ export async function onRequestPost(context: { request: Request; env: any }) {
           email: user.email,
           emailVerified: user.emailVerified,
         }
-      }, 201);
-      
+      }), {
+        status: 201,
+        headers: { 'Content-Type': 'application/json' },
+      });
+
       // Set HttpOnly cookie
-      res.headers.append('Set-Cookie', `rf_token=${token}; Path=/; HttpOnly; Secure; SameSite=Strict; Max-Age=3600`);
-      
-      return res;
+      response.headers.set('Set-Cookie', `rf_token=${token}; Path=/; HttpOnly; Secure; SameSite=Strict; Max-Age=604800`);
+
+      return response;
     } finally {
       await prisma.$disconnect();
     }
   } catch (error) {
     console.error('Registration error:', error);
-    return json({ message: 'Internal server error' }, 500);
+    return new Response(JSON.stringify({ message: 'Internal server error' }), {
+      status: 500,
+      headers: { 'Content-Type': 'application/json' },
+    });
   }
 }
-
-function json(body: any, status = 200) {
-  return new Response(JSON.stringify(body), {
-    status,
-    headers: { 'Content-Type': 'application/json' },
-  });
-}
-
-

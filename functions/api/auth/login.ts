@@ -1,17 +1,18 @@
-import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
+import jwt from 'jsonwebtoken';
 import { PrismaClient } from '@prisma/client';
 
 export async function onRequestPost(context: { request: Request; env: any }) {
   try {
     const { email, password } = await context.request.json();
-    
-    // Validate input
+
     if (!email || !password) {
-      return json({ message: 'Email and password are required' }, 400);
+      return new Response(JSON.stringify({ message: 'Email and password are required' }), {
+        status: 400,
+        headers: { 'Content-Type': 'application/json' },
+      });
     }
 
-    // Initialize Prisma client
     const prisma = new PrismaClient({
       datasources: {
         db: {
@@ -21,46 +22,55 @@ export async function onRequestPost(context: { request: Request; env: any }) {
     });
 
     try {
-      // Find user by email
       const user = await prisma.user.findUnique({
         where: { email },
       });
 
       if (!user) {
-        return json({ message: 'Invalid credentials' }, 401);
+        return new Response(JSON.stringify({ message: 'Invalid credentials' }), {
+          status: 401,
+          headers: { 'Content-Type': 'application/json' },
+        });
       }
 
-      // Check if user has a password (OAuth users might not have one)
       if (!user.passwordHash) {
-        return json({ message: 'Please use OAuth login for this account' }, 401);
+        return new Response(JSON.stringify({ message: 'Please use OAuth login' }), {
+          status: 401,
+          headers: { 'Content-Type': 'application/json' },
+        });
       }
 
-      // Verify password
       const isValidPassword = await bcrypt.compare(password, user.passwordHash);
+
       if (!isValidPassword) {
-        return json({ message: 'Invalid credentials' }, 401);
+        return new Response(JSON.stringify({ message: 'Invalid credentials' }), {
+          status: 401,
+          headers: { 'Content-Type': 'application/json' },
+        });
       }
 
-      // Check if email is verified
       if (!user.emailVerified) {
-        return json({ 
+        return new Response(JSON.stringify({ 
           message: 'Please verify your email before logging in',
           requiresVerification: true 
-        }, 401);
+        }), {
+          status: 401,
+          headers: { 'Content-Type': 'application/json' },
+        });
       }
 
-      // Generate JWT token
       const token = jwt.sign(
         { 
           userId: user.id, 
-          email: user.email,
-          provider: 'password' 
-        }, 
-        context.env.JWT_SECRET, 
-        { expiresIn: '1h' }
+          email: user.email, 
+          name: user.name,
+          provider: 'email'
+        },
+        context.env.JWT_SECRET,
+        { expiresIn: '7d' }
       );
 
-      const res = json({ 
+      const response = new Response(JSON.stringify({ 
         message: 'Login successful',
         user: {
           id: user.id,
@@ -68,31 +78,23 @@ export async function onRequestPost(context: { request: Request; env: any }) {
           email: user.email,
           emailVerified: user.emailVerified,
         }
-      }, 200);
-      
+      }), {
+        status: 200,
+        headers: { 'Content-Type': 'application/json' },
+      });
+
       // Set HttpOnly cookie
-      setCookie(res, 'rf_token', token, 60 * 60);
-      
-      return res;
+      response.headers.set('Set-Cookie', `rf_token=${token}; Path=/; HttpOnly; Secure; SameSite=Strict; Max-Age=604800`);
+
+      return response;
     } finally {
       await prisma.$disconnect();
     }
   } catch (error) {
     console.error('Login error:', error);
-    return json({ message: 'Internal server error' }, 500);
+    return new Response(JSON.stringify({ message: 'Internal server error' }), {
+      status: 500,
+      headers: { 'Content-Type': 'application/json' },
+    });
   }
 }
-
-function json(body: any, status = 200) {
-  return new Response(JSON.stringify(body), {
-    status,
-    headers: { 'Content-Type': 'application/json' },
-  });
-}
-
-function setCookie(res: Response, name: string, value: string, maxAgeSeconds: number) {
-  const cookie = `${name}=${value}; Path=/; HttpOnly; Secure; SameSite=Strict; Max-Age=${maxAgeSeconds}`;
-  res.headers.append('Set-Cookie', cookie);
-}
-
-

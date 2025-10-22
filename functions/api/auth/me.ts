@@ -3,28 +3,25 @@ import { PrismaClient } from '@prisma/client';
 
 export async function onRequestGet(context: { request: Request; env: any }) {
   try {
-    // Get token from cookie
-    const cookieHeader = context.request.headers.get('cookie');
-    if (!cookieHeader) {
-      return json({ message: 'No authentication token found' }, 401);
+    const token = context.request.headers.get('Cookie')?.split('; ').find(row => row.startsWith('rf_token='))?.split('=')[1];
+
+    if (!token) {
+      return new Response(JSON.stringify({ message: 'Authentication required' }), {
+        status: 401,
+        headers: { 'Content-Type': 'application/json' },
+      });
     }
 
-    const tokenMatch = cookieHeader.match(/rf_token=([^;]+)/);
-    if (!tokenMatch) {
-      return json({ message: 'No authentication token found' }, 401);
-    }
-
-    const token = tokenMatch[1];
-
-    // Verify JWT token
-    let decoded;
+    let decoded: any;
     try {
-      decoded = jwt.verify(token, context.env.JWT_SECRET) as any;
+      decoded = jwt.verify(token, context.env.JWT_SECRET);
     } catch (error) {
-      return json({ message: 'Invalid or expired token' }, 401);
+      return new Response(JSON.stringify({ message: 'Invalid or expired token' }), {
+        status: 401,
+        headers: { 'Content-Type': 'application/json' },
+      });
     }
 
-    // Initialize Prisma client
     const prisma = new PrismaClient({
       datasources: {
         db: {
@@ -34,55 +31,44 @@ export async function onRequestGet(context: { request: Request; env: any }) {
     });
 
     try {
-      // Get user from database
       const user = await prisma.user.findUnique({
         where: { id: decoded.userId },
-        select: {
-          id: true,
-          name: true,
-          email: true,
-          emailVerified: true,
+        select: { 
+          id: true, 
+          name: true, 
+          email: true, 
+          emailVerified: true, 
           createdAt: true,
-          updatedAt: true,
           subscriptions: {
-            where: { status: 'ACTIVE' },
             select: {
               id: true,
               status: true,
               plan: true,
               currentPeriodEnd: true,
-            },
-          },
+            }
+          }
         },
       });
 
       if (!user) {
-        return json({ message: 'User not found' }, 404);
+        return new Response(JSON.stringify({ message: 'User not found' }), {
+          status: 404,
+          headers: { 'Content-Type': 'application/json' },
+        });
       }
 
-      return json({
-        user: {
-          id: user.id,
-          name: user.name,
-          email: user.email,
-          emailVerified: user.emailVerified,
-          createdAt: user.createdAt,
-          updatedAt: user.updatedAt,
-          subscription: user.subscriptions[0] || null,
-        },
+      return new Response(JSON.stringify({ user }), {
+        status: 200,
+        headers: { 'Content-Type': 'application/json' },
       });
     } finally {
       await prisma.$disconnect();
     }
   } catch (error) {
-    console.error('Get user error:', error);
-    return json({ message: 'Internal server error' }, 500);
+    console.error('Auth /me error:', error);
+    return new Response(JSON.stringify({ message: 'Internal server error' }), {
+      status: 500,
+      headers: { 'Content-Type': 'application/json' },
+    });
   }
-}
-
-function json(body: any, status = 200) {
-  return new Response(JSON.stringify(body), {
-    status,
-    headers: { 'Content-Type': 'application/json' },
-  });
 }
