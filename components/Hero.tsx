@@ -1,7 +1,9 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-// import Image from 'next/image'; // Temporarily disabled for deployment
+import Image from 'next/image';
+import Lottie from 'lottie-react';
+import aiAnimation from '@/public/lottie/ai.json';
 import Link from 'next/link';
 
 export default function Hero() {
@@ -19,10 +21,9 @@ export default function Hero() {
       {/* Background gradient overlay */}
       <div className="absolute inset-0 bg-gradient-to-br from-primary-950/80 via-secondary-900/60 to-primary-900/80" />
       
-      {/* Animated background elements */}
-      <div className="absolute inset-0">
-        <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-primary-500/10 rounded-full blur-3xl animate-pulse" />
-        <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl animate-pulse hero-ping" />
+      {/* Animated background via Lottie */}
+      <div className="absolute inset-0 opacity-30 pointer-events-none">
+        <Lottie animationData={aiAnimation} loop={true} />
       </div>
 
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
@@ -113,13 +114,21 @@ export default function Hero() {
           <div className="mt-16 pt-8 border-t border-white/20">
             <p className="text-white/80 text-sm mb-6">Trusted by creators worldwide</p>
             <div className="flex flex-wrap justify-center items-center gap-8 opacity-80">
-              <img src="/integrations/discord.svg" alt="Discord" className="h-8 w-auto" />
-              <img src="/integrations/whop.svg" alt="Whop" className="h-8 w-auto" />
-              <img src="/integrations/shopify.svg" alt="Shopify" className="h-8 w-auto" />
-              <img src="/integrations/patreon.svg" alt="Patreon" className="h-8 w-auto" />
-              <img src="/integrations/gumroad.svg" alt="Gumroad" className="h-8 w-auto" />
+              <Image src="/integrations/discord.svg" alt="Discord" width={120} height={32} />
+              <Image src="/integrations/whop.svg" alt="Whop" width={120} height={32} />
+              <Image src="/integrations/shopify.svg" alt="Shopify" width={120} height={32} />
+              <Image src="/integrations/patreon.svg" alt="Patreon" width={120} height={32} />
+              <Image src="/integrations/gumroad.svg" alt="Gumroad" width={120} height={32} />
             </div>
           </div>
+        </div>
+      </div>
+
+      {/* Sticky CTAs on mobile */}
+      <div className="fixed bottom-4 left-0 right-0 z-30 flex justify-center md:hidden px-4">
+        <div className="bg-black/40 backdrop-blur-sm border border-white/10 rounded-xl p-2 flex gap-2">
+          <Link href="/register" className="bg-primary-600 hover:bg-primary-700 text-white font-semibold py-3 px-5 rounded-lg">Start Free Trial</Link>
+          <Link href="/demo" className="bg-white/10 hover:bg-white/20 text-white font-semibold py-3 px-5 rounded-lg border border-white/20">Watch Demo</Link>
         </div>
       </div>
 
