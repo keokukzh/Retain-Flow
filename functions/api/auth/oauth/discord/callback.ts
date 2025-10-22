@@ -27,6 +27,19 @@ export async function onRequestGet(context: { request: Request; env: any }) {
   });
   const user = await userResp.json();
 
+  // Store Discord connection in KV
+  await context.env.INTEGRATIONS_KV.put(
+    'discord:connection',
+    JSON.stringify({
+      accessToken: tokenSet.access_token,
+      refreshToken: tokenSet.refresh_token,
+      userId: user.id,
+      username: user.username,
+      email: user.email,
+      connectedAt: new Date().toISOString(),
+    })
+  );
+
   const jwtToken = jwt.sign({ sub: user.id, email: user.email, provider: 'discord' }, context.env.JWT_SECRET, { expiresIn: '1h' });
   const res = Response.redirect(context.env.PUBLIC_URL + '/dashboard', 302);
   res.headers.append('Set-Cookie', `rf_token=${jwtToken}; Path=/; HttpOnly; Secure; SameSite=Strict; Max-Age=3600`);

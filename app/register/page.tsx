@@ -49,8 +49,8 @@ export default function RegisterPage() {
       const data = await response.json();
 
       if (response.ok) {
-        // Redirect to email verification or dashboard
-        window.location.href = `/verify-email?email=${encodeURIComponent(formData.email)}`;
+        // Redirect directly to dashboard; token cookie set by function in future
+        window.location.href = '/login?registered=true';
       } else {
         setError(data.message || 'Registration failed');
       }

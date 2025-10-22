@@ -1,0 +1,25 @@
+name = "retainflow-prod"
+pages_build_output_dir = "out"
+
+compatibility_date = "2024-10-01"
+compatibility_flags = ["nodejs_compat"]
+
+[[kv_namespaces]]
+binding = "INTEGRATIONS_KV"
+id = "retainflow-integrations"
+preview_id = "retainflow-integrations-preview"
+
+[vars]
+# PUBLIC_URL = "https://aidevelo.ai"
+# JWT_SECRET = "set-in-dashboard"
+# DISCORD_CLIENT_ID = "set-in-dashboard"
+# DISCORD_CLIENT_SECRET = "set-in-dashboard"
+# GOOGLE_CLIENT_ID = "set-in-dashboard"
+# GOOGLE_CLIENT_SECRET = "set-in-dashboard"
+# STRIPE_SECRET_KEY = "set-in-dashboard"
+# STRIPE_WEBHOOK_SECRET = "set-in-dashboard"
+# STRIPE_PRICE_ID_PRO = "set-in-dashboard"
+# WHOP_WEBHOOK_SECRET = "set-in-dashboard"
+# SHOPIFY_CLIENT_ID = "set-in-dashboard"
+# SHOPIFY_CLIENT_SECRET = "set-in-dashboard"
+
