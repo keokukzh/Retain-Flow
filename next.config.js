@@ -3,7 +3,8 @@ const nextConfig = {
   experimental: {
     serverComponentsExternalPackages: ['@prisma/client'],
   },
-  // output: 'export', // Removed for Cloudflare Pages with Functions
+  // Cloudflare Pages configuration
+  output: 'standalone',
   trailingSlash: true,
   images: {
     domains: ['localhost', 'aidevelo.ai'],
@@ -17,6 +18,16 @@ const nextConfig = {
         fs: false,
         net: false,
         tls: false,
+        crypto: false,
+        stream: false,
+        util: false,
+        url: false,
+        assert: false,
+        http: false,
+        https: false,
+        zlib: false,
+        path: false,
+        os: false,
       };
     }
     

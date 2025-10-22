@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeAll, afterAll } from '@jest/globals';
-import { discordService } from '../../services/discord.service';
+import { DiscordService } from '../../services/discord.service';
 
 describe('Discord Integration Tests', () => {
   beforeAll(() => {
@@ -22,7 +22,7 @@ describe('Discord Integration Tests', () => {
       };
 
       try {
-        const result = await discordService.syncGuild(mockGuildData);
+        const result = await DiscordService.syncGuild(mockGuildData);
 
         expect(result).toBeDefined();
         expect(result.guildId).toBe(mockGuildId);
@@ -44,7 +44,7 @@ describe('Discord Integration Tests', () => {
       };
 
       try {
-        const result = await discordService.trackActivity(
+        const result = await DiscordService.trackActivity(
           mockGuildId,
           mockUserId,
           mockActivityData
@@ -68,7 +68,7 @@ describe('Discord Integration Tests', () => {
       };
 
       try {
-        const result = await discordService.createRetentionCampaign(
+        const result = await DiscordService.createRetentionCampaign(
           mockGuildId,
           mockCampaignData
         );

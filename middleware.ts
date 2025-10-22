@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
-import jwt from 'jsonwebtoken';
+import { verifyJWT } from './lib/jwt-edge';
 
-export function middleware(req: any) {
+export async function middleware(req: any) {
   const token = req.cookies.get?.('rf_token')?.value;
   
   // Protected routes that require authentication
@@ -20,7 +20,7 @@ export function middleware(req: any) {
 
     // Verify JWT token
     try {
-      const decoded = jwt.verify(token, process.env.JWT_SECRET!) as any;
+      const decoded = await verifyJWT(token);
       
       // Add user info to headers for API routes
       const requestHeaders = new Headers(req.headers);

@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeAll, afterAll } from '@jest/globals';
-import { stripeService } from '../../services/stripe.service';
+import { StripeService } from '../../services/stripe.service';
 
 describe('Stripe Integration Tests', () => {
   beforeAll(() => {
@@ -17,7 +17,7 @@ describe('Stripe Integration Tests', () => {
       const mockPriceId = 'price_test_mock';
 
       try {
-        const session = await stripeService.createCheckoutSession(
+        const session = await StripeService.createCheckoutSession(
           mockUserId,
           mockPriceId,
           'https://example.com/success',
@@ -40,7 +40,7 @@ describe('Stripe Integration Tests', () => {
       const mockName = 'Test User';
 
       try {
-        const customer = await stripeService.createCustomer(mockEmail, mockName);
+        const customer = await StripeService.createCustomer(mockEmail, mockName);
 
         expect(customer).toBeDefined();
         expect(customer.id).toBeDefined();
@@ -56,7 +56,7 @@ describe('Stripe Integration Tests', () => {
       const mockSubscriptionId = 'sub_test_mock';
 
       try {
-        const subscription = await stripeService.cancelSubscription(mockSubscriptionId);
+        const subscription = await StripeService.cancelSubscription(mockSubscriptionId);
 
         expect(subscription).toBeDefined();
         expect(subscription.cancel_at_period_end).toBe(true);
