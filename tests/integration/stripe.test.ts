@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeAll, afterAll } from '@jest/globals';
-import { stripeService } from '../../services/stripe.service';
+import { StripeService } from '../../services/stripe.service';
 
 describe('Stripe Integration Tests', () => {
   beforeAll(() => {
@@ -17,12 +17,13 @@ describe('Stripe Integration Tests', () => {
       const mockPriceId = 'price_test_mock';
 
       try {
-        const session = await stripeService.createCheckoutSession(
-          mockUserId,
-          mockPriceId,
-          'https://example.com/success',
-          'https://example.com/cancel'
-        );
+        const session = await StripeService.createCheckoutSession({
+          userId: mockUserId,
+          priceId: mockPriceId,
+          successUrl: 'https://example.com/success',
+          cancelUrl: 'https://example.com/cancel',
+          customerEmail: 'test@example.com',
+        });
 
         expect(session).toBeDefined();
         expect(session.url).toBeDefined();
@@ -36,11 +37,16 @@ describe('Stripe Integration Tests', () => {
 
   describe('Customer Management', () => {
     it('should create a customer', async () => {
+      const mockUserId = 'test-user-id';
       const mockEmail = 'test@example.com';
       const mockName = 'Test User';
 
       try {
-        const customer = await stripeService.createCustomer(mockEmail, mockName);
+        const customer = await StripeService.createCustomer({
+          userId: mockUserId,
+          email: mockEmail,
+          name: mockName,
+        });
 
         expect(customer).toBeDefined();
         expect(customer.id).toBeDefined();
@@ -56,7 +62,7 @@ describe('Stripe Integration Tests', () => {
       const mockSubscriptionId = 'sub_test_mock';
 
       try {
-        const subscription = await stripeService.cancelSubscription(mockSubscriptionId);
+        const subscription = await StripeService.cancelSubscription(mockSubscriptionId);
 
         expect(subscription).toBeDefined();
         expect(subscription.cancel_at_period_end).toBe(true);
