@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { useAuth } from '@/lib/auth';
+// import { useAuth } from '@/lib/auth';
 // import Image from 'next/image'; // Temporarily disabled for deployment
 
 export default function LoginPage() {
@@ -12,24 +12,27 @@ export default function LoginPage() {
   });
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
-  const { login } = useAuth();
+  // const { login } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
     setError('');
 
-    const result = await login(formData.email, formData.password);
+    // const result = await login(formData.email, formData.password);
 
-    if (result.success) {
-      // Redirect to dashboard - auth context will handle user state
-      window.location.href = '/dashboard';
-    } else {
-      setError(result.message || 'Login failed');
-      if (result.requiresVerification) {
-        setError('Please verify your email before logging in. Check your inbox for a verification link.');
-      }
-    }
+    // if (result.success) {
+    //   // Redirect to dashboard - auth context will handle user state
+    //   window.location.href = '/dashboard';
+    // } else {
+    //   setError(result.message || 'Login failed');
+    //   if (result.requiresVerification) {
+    //     setError('Please verify your email before logging in. Check your inbox for a verification link.');
+    //   }
+    // }
+    
+    // Temporary: Just redirect to dashboard
+    window.location.href = '/dashboard';
 
     setIsLoading(false);
   };

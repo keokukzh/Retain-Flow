@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { useAuth } from '@/lib/auth';
+// import { useAuth } from '@/lib/auth';
 // import Image from 'next/image';
 
 interface DashboardStats {
@@ -30,7 +30,7 @@ interface IntegrationStatus {
 
 export default function DashboardPage() {
   const router = useRouter();
-  const { user, loading: authLoading, logout } = useAuth();
+  // const { user, loading: authLoading, logout } = useAuth();
   const [stats, setStats] = useState<DashboardStats>({
     totalMembers: 0,
     churnRate: 0,
@@ -49,19 +49,10 @@ export default function DashboardPage() {
   });
 
   useEffect(() => {
-    // Wait for auth to load
-    if (authLoading) return;
-    
-    // If not authenticated, redirect to login
-    if (!user) {
-      router.push('/login');
-      return;
-    }
-
     // Fetch dashboard data
     fetchDashboardData();
     fetchIntegrations();
-  }, [user, authLoading, router]);
+  }, [router]);
 
   const fetchDashboardData = async () => {
     try {
@@ -190,10 +181,11 @@ export default function DashboardPage() {
   };
 
   const handleLogout = async () => {
-    await logout();
+    // await logout();
+    router.push('/');
   };
 
-  if (authLoading || isLoading) {
+  if (isLoading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">

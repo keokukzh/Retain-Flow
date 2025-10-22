@@ -139,7 +139,7 @@ export async function onRequestGet(context: { request: Request; env: any }) {
     
   } catch (error) {
     console.error('Discord OAuth callback error:', error);
-    return new Response(`Discord OAuth callback error: ${error.message}`, { status: 500 });
+    return new Response(`Discord OAuth callback error: ${error instanceof Error ? error.message : 'Unknown error'}`, { status: 500 });
   }
 }
 

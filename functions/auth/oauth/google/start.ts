@@ -12,7 +12,7 @@ export async function onRequestGet(context: { env: any }) {
     return Response.redirect(url, 302);
   } catch (error) {
     console.error('Google OAuth start error:', error);
-    return new Response(`OAuth start error: ${error.message}`, { status: 500 });
+    return new Response(`OAuth start error: ${error instanceof Error ? error.message : 'Unknown error'}`, { status: 500 });
   }
 }
 
