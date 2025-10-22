@@ -2,8 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-// import { useAuth } from '@/lib/auth';
-// import Image from 'next/image'; // Temporarily disabled for deployment
+import { useAuth } from '@/lib/auth-context';
 
 export default function RegisterPage() {
   const [formData, setFormData] = useState({
@@ -16,7 +15,7 @@ export default function RegisterPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
-  // const { register } = useAuth();
+  const { register } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -37,17 +36,14 @@ export default function RegisterPage() {
       return;
     }
 
-    // const result = await register(formData.name, formData.email, formData.password);
+    const result = await register(formData.name, formData.email, formData.password);
 
-    // if (result.success) {
-    //   setSuccess(true);
-    //   setError('');
-    // } else {
-    //   setError(result.message || 'Registration failed');
-    // }
-    
-    // Temporary: Just show success
-    setSuccess(true);
+    if (result.success) {
+      setSuccess(true);
+      setError('');
+    } else {
+      setError(result.message || 'Registration failed');
+    }
     setError('');
 
     setIsLoading(false);

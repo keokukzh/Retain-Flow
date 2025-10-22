@@ -306,3 +306,14 @@ model EditorProject {
   @@map("editor_projects")
 }
 
+model OAuthState {
+  id         String   @id @default(uuid())
+  state      String   @unique
+  provider   String   // 'google' or 'discord'
+  redirectTo String?  // Where to redirect after OAuth
+  expiresAt   DateTime
+  createdAt  DateTime @default(now())
+  
+  @@map("oauth_states")
+}
+
