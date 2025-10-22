@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 
 interface DashboardStats {
   totalMembers: number;
@@ -19,6 +20,13 @@ interface ChurnPrediction {
   lastActive: string;
 }
 
+interface IntegrationStatus {
+  discord: { connected: boolean };
+  stripe: { connected: boolean };
+  whop: { connected: boolean };
+  shopify: { connected: boolean };
+}
+
 export default function DashboardPage() {
   const router = useRouter();
   const [stats, setStats] = useState<DashboardStats>({
@@ -31,6 +39,12 @@ export default function DashboardPage() {
   });
   const [churnPredictions, setChurnPredictions] = useState<ChurnPrediction[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [integrations, setIntegrations] = useState<IntegrationStatus>({
+    discord: { connected: false },
+    stripe: { connected: false },
+    whop: { connected: false },
+    shopify: { connected: false },
+  });
 
   useEffect(() => {
     // Check authentication
@@ -42,6 +56,7 @@ export default function DashboardPage() {
 
     // Fetch dashboard data
     fetchDashboardData();
+    fetchIntegrations();
   }, [router]);
 
   const fetchDashboardData = async () => {
@@ -62,6 +77,31 @@ export default function DashboardPage() {
       // console.error('Failed to fetch dashboard data:', error); // TODO: Add proper logging
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const fetchIntegrations = async () => {
+    try {
+      const response = await fetch('/api/integrations/status');
+      if (response.ok) {
+        const data = await response.json();
+        setIntegrations(data.integrations);
+      }
+    } catch (error) {
+      // console.error('Failed to fetch integrations:', error);
+    }
+  };
+
+  const handleConnectIntegration = async (provider: string) => {
+    try {
+      const response = await fetch(`/api/integrations/${provider}/connect`, {
+        method: 'POST',
+      });
+      if (response.ok) {
+        await fetchIntegrations(); // Refresh status
+      }
+    } catch (error) {
+      // console.error('Failed to connect integration:', error);
     }
   };
 
@@ -223,14 +263,23 @@ export default function DashboardPage() {
                 <button className="w-full bg-primary-600 hover:bg-primary-700 text-white py-3 px-4 rounded-lg font-medium transition-colors">
                   Create Retention Campaign
                 </button>
-                <button className="w-full bg-gray-100 hover:bg-gray-200 text-gray-900 py-3 px-4 rounded-lg font-medium transition-colors">
-                  View Analytics
+                <button 
+                  onClick={() => handleConnectIntegration('stripe')}
+                  className="w-full bg-gray-100 hover:bg-gray-200 text-gray-900 py-3 px-4 rounded-lg font-medium transition-colors"
+                >
+                  {integrations.stripe.connected ? 'Stripe Connected' : 'Connect Stripe'}
                 </button>
-                <button className="w-full bg-gray-100 hover:bg-gray-200 text-gray-900 py-3 px-4 rounded-lg font-medium transition-colors">
-                  Manage Integrations
+                <button 
+                  onClick={() => handleConnectIntegration('discord')}
+                  className="w-full bg-gray-100 hover:bg-gray-200 text-gray-900 py-3 px-4 rounded-lg font-medium transition-colors"
+                >
+                  {integrations.discord.connected ? 'Discord Connected' : 'Connect Discord'}
                 </button>
-                <button className="w-full bg-gray-100 hover:bg-gray-200 text-gray-900 py-3 px-4 rounded-lg font-medium transition-colors">
-                  Export Data
+                <button 
+                  onClick={() => handleConnectIntegration('whop')}
+                  className="w-full bg-gray-100 hover:bg-gray-200 text-gray-900 py-3 px-4 rounded-lg font-medium transition-colors"
+                >
+                  {integrations.whop.connected ? 'Whop Connected' : 'Connect Whop'}
                 </button>
               </div>
             </div>
