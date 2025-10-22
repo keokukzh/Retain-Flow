@@ -2,7 +2,8 @@
 
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import Image from 'next/image';
+import { useAuth } from '@/lib/auth';
+// import Image from 'next/image';
 
 interface DashboardStats {
   totalMembers: number;
@@ -29,6 +30,7 @@ interface IntegrationStatus {
 
 export default function DashboardPage() {
   const router = useRouter();
+  const { user, loading: authLoading, logout } = useAuth();
   const [stats, setStats] = useState<DashboardStats>({
     totalMembers: 0,
     churnRate: 0,
@@ -47,9 +49,11 @@ export default function DashboardPage() {
   });
 
   useEffect(() => {
-    // Check authentication
-    const token = localStorage.getItem('token');
-    if (!token) {
+    // Wait for auth to load
+    if (authLoading) return;
+    
+    // If not authenticated, redirect to login
+    if (!user) {
       router.push('/login');
       return;
     }
@@ -57,15 +61,12 @@ export default function DashboardPage() {
     // Fetch dashboard data
     fetchDashboardData();
     fetchIntegrations();
-  }, [router]);
+  }, [user, authLoading, router]);
 
   const fetchDashboardData = async () => {
     try {
-      const token = localStorage.getItem('token');
       const response = await fetch('/api/dashboard/stats', {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-        },
+        credentials: 'include', // Include cookies for authentication
       });
 
       if (response.ok) {
@@ -188,12 +189,11 @@ export default function DashboardPage() {
     }
   };
 
-  const handleLogout = () => {
-    localStorage.removeItem('token');
-    router.push('/');
+  const handleLogout = async () => {
+    await logout();
   };
 
-  if (isLoading) {
+  if (authLoading || isLoading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">

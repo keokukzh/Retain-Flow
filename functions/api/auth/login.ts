@@ -1,23 +1,85 @@
 import jwt from 'jsonwebtoken';
+import bcrypt from 'bcryptjs';
+import { PrismaClient } from '@prisma/client';
 
 export async function onRequestPost(context: { request: Request; env: any }) {
   try {
     const { email, password } = await context.request.json();
+    
+    // Validate input
     if (!email || !password) {
-      return json({ message: 'Email and password required' }, 400);
+      return json({ message: 'Email and password are required' }, 400);
     }
 
-    // Placeholder auth: accept any password length >= 6
-    if (typeof password !== 'string' || password.length < 6) {
-      return json({ message: 'Invalid credentials' }, 401);
-    }
+    // Initialize Prisma client
+    const prisma = new PrismaClient({
+      datasources: {
+        db: {
+          url: context.env.DATABASE_URL,
+        },
+      },
+    });
 
-    const token = jwt.sign({ sub: email }, context.env.JWT_SECRET, { expiresIn: '1h' });
-    const res = json({ token }, 200);
-    setCookie(res, 'rf_token', token, 60 * 60);
-    return res;
-  } catch (e) {
-    return json({ message: 'Bad Request' }, 400);
+    try {
+      // Find user by email
+      const user = await prisma.user.findUnique({
+        where: { email },
+      });
+
+      if (!user) {
+        return json({ message: 'Invalid credentials' }, 401);
+      }
+
+      // Check if user has a password (OAuth users might not have one)
+      if (!user.passwordHash) {
+        return json({ message: 'Please use OAuth login for this account' }, 401);
+      }
+
+      // Verify password
+      const isValidPassword = await bcrypt.compare(password, user.passwordHash);
+      if (!isValidPassword) {
+        return json({ message: 'Invalid credentials' }, 401);
+      }
+
+      // Check if email is verified
+      if (!user.emailVerified) {
+        return json({ 
+          message: 'Please verify your email before logging in',
+          requiresVerification: true 
+        }, 401);
+      }
+
+      // Generate JWT token
+      const token = jwt.sign(
+        { 
+          userId: user.id, 
+          email: user.email,
+          provider: 'password' 
+        }, 
+        context.env.JWT_SECRET, 
+        { expiresIn: '1h' }
+      );
+
+      const res = json({ 
+        message: 'Login successful',
+        user: {
+          id: user.id,
+          name: user.name,
+          email: user.email,
+          emailVerified: user.emailVerified,
+        }
+      }, 200);
+      
+      // Set HttpOnly cookie
+      setCookie(res, 'rf_token', token, 60 * 60);
+      
+      return res;
+    } finally {
+      await prisma.$disconnect();
+    }
+  } catch (error) {
+    console.error('Login error:', error);
+    return json({ message: 'Internal server error' }, 500);
   }
 }
 

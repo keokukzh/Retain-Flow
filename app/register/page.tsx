@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import { useAuth } from '@/lib/auth';
 // import Image from 'next/image'; // Temporarily disabled for deployment
 
 export default function RegisterPage() {
@@ -14,11 +15,14 @@ export default function RegisterPage() {
   });
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
+  const [success, setSuccess] = useState(false);
+  const { register } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
     setError('');
+    setSuccess(false);
 
     // Validation
     if (formData.password !== formData.confirmPassword) {
@@ -33,32 +37,16 @@ export default function RegisterPage() {
       return;
     }
 
-    try {
-      const response = await fetch('/api/auth/register', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          name: formData.name,
-          email: formData.email,
-          password: formData.password,
-        }),
-      });
+    const result = await register(formData.name, formData.email, formData.password);
 
-      const data = await response.json();
-
-      if (response.ok) {
-        // Redirect directly to dashboard; token cookie set by function in future
-        window.location.href = '/login?registered=true';
-      } else {
-        setError(data.message || 'Registration failed');
-      }
-    } catch (err) {
-      setError('An error occurred. Please try again.');
-    } finally {
-      setIsLoading(false);
+    if (result.success) {
+      setSuccess(true);
+      setError('');
+    } else {
+      setError(result.message || 'Registration failed');
     }
+
+    setIsLoading(false);
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -89,12 +77,33 @@ export default function RegisterPage() {
 
         {/* Registration Form */}
         <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-8 border border-white/20">
-          <form onSubmit={handleSubmit} className="space-y-6">
-            {error && (
-              <div className="bg-red-500/20 border border-red-500/30 rounded-lg p-4">
-                <p className="text-red-200 text-sm">{error}</p>
+          {success ? (
+            <div className="text-center space-y-6">
+              <div className="bg-green-500/20 border border-green-500/30 rounded-lg p-6">
+                <div className="flex justify-center mb-4">
+                  <svg className="w-12 h-12 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                </div>
+                <h3 className="text-lg font-semibold text-green-200 mb-2">Registration Successful!</h3>
+                <p className="text-green-200 text-sm mb-4">
+                  Please check your email to verify your account before logging in.
+                </p>
+                <Link
+                  href="/login"
+                  className="inline-block bg-primary-600 hover:bg-primary-700 text-white font-semibold py-2 px-6 rounded-lg transition-colors"
+                >
+                  Go to Login
+                </Link>
               </div>
-            )}
+            </div>
+          ) : (
+            <form onSubmit={handleSubmit} className="space-y-6">
+              {error && (
+                <div className="bg-red-500/20 border border-red-500/30 rounded-lg p-4">
+                  <p className="text-red-200 text-sm">{error}</p>
+                </div>
+              )}
 
             <div>
               <label htmlFor="name" className="block text-sm font-medium text-gray-200 mb-2">
@@ -211,6 +220,7 @@ export default function RegisterPage() {
               )}
             </button>
           </form>
+          )}
 
           {/* Divider */}
           <div className="mt-6">

@@ -140,7 +140,7 @@ STRIPE_PRICE_ID_PRO_YEARLY=price_your_yearly_price_id
             <ol className="text-sm text-yellow-700 space-y-1">
               <li>1. Get OAuth credentials from Google Console and Discord Developer Portal</li>
               <li>2. Fill in the form above</li>
-              <li>3. Click "Generate Environment Variables"</li>
+              <li>3. Click &quot;Generate Environment Variables&quot;</li>
               <li>4. Go to Cloudflare Pages → Your Project → Settings → Environment Variables</li>
               <li>5. Add each variable from the generated list</li>
               <li>6. Redeploy your project</li>

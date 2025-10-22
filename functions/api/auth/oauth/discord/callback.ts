@@ -1,4 +1,5 @@
 import jwt from 'jsonwebtoken';
+import { PrismaClient } from '@prisma/client';
 
 export async function onRequestGet(context: { request: Request; env: any }) {
   try {
@@ -23,7 +24,7 @@ export async function onRequestGet(context: { request: Request; env: any }) {
       return new Response('JWT_SECRET not configured. Please set JWT_SECRET environment variable in Cloudflare Pages settings.', { status: 500 });
     }
 
-    const publicUrl = context.env.PUBLIC_URL || 'https://2f17e891.retainflow-prod.pages.dev';
+    const publicUrl = context.env.PUBLIC_URL || 'https://retainflow-prod.pages.dev';
     const redirect = `${publicUrl}/api/auth/oauth/discord/callback`;
     
     const body = new URLSearchParams({
@@ -56,31 +57,85 @@ export async function onRequestGet(context: { request: Request; env: any }) {
       return new Response('Failed to fetch Discord user info', { status: 400 });
     }
     
-    const user = await userResp.json();
+    const discordUser = await userResp.json();
 
-    // Store Discord connection in KV if available
-    if (context.env.INTEGRATIONS_KV) {
-      try {
-        await context.env.INTEGRATIONS_KV.put(
-          'discord:connection',
-          JSON.stringify({
-            accessToken: tokenSet.access_token,
-            refreshToken: tokenSet.refresh_token,
-            userId: user.id,
-            username: user.username,
-            email: user.email,
-            connectedAt: new Date().toISOString(),
-          })
-        );
-      } catch (kvError) {
-        console.warn('KV storage not available:', kvError);
+    // Initialize Prisma client
+    const prisma = new PrismaClient({
+      datasources: {
+        db: {
+          url: context.env.DATABASE_URL,
+        },
+      },
+    });
+
+    try {
+      // Check if user exists by email or Discord ID
+      let user = await prisma.user.findFirst({
+        where: {
+          OR: [
+            { email: discordUser.email },
+            { discordId: discordUser.id }
+          ]
+        }
+      });
+
+      if (user) {
+        // Update existing user with Discord ID if not already set
+        if (!user.discordId) {
+          user = await prisma.user.update({
+            where: { id: user.id },
+            data: { 
+              discordId: discordUser.id,
+              emailVerified: true, // Discord emails are verified
+              name: user.name || discordUser.username,
+            }
+          });
+        }
+      } else {
+        // Create new user
+        user = await prisma.user.create({
+          data: {
+            name: discordUser.username,
+            email: discordUser.email,
+            discordId: discordUser.id,
+            emailVerified: true, // Discord emails are verified
+            passwordHash: null, // OAuth users don't have passwords
+          }
+        });
       }
-    }
 
-    const jwtToken = jwt.sign({ sub: user.id, email: user.email, provider: 'discord' }, context.env.JWT_SECRET, { expiresIn: '1h' });
-    const res = Response.redirect(`${publicUrl}/dashboard?discord_connected=true`, 302);
-    res.headers.append('Set-Cookie', `rf_token=${jwtToken}; Path=/; HttpOnly; Secure; SameSite=Strict; Max-Age=3600`);
-    return res;
+      // Store Discord connection in KV if available
+      if (context.env.INTEGRATIONS_KV) {
+        try {
+          await context.env.INTEGRATIONS_KV.put(
+            'discord:connection',
+            JSON.stringify({
+              accessToken: tokenSet.access_token,
+              refreshToken: tokenSet.refresh_token,
+              userId: discordUser.id,
+              username: discordUser.username,
+              email: discordUser.email,
+              connectedAt: new Date().toISOString(),
+            })
+          );
+        } catch (kvError) {
+          console.warn('KV storage not available:', kvError);
+        }
+      }
+
+      const jwtToken = jwt.sign({ 
+        userId: user.id,
+        email: user.email, 
+        name: user.name,
+        provider: 'discord' 
+      }, context.env.JWT_SECRET, { expiresIn: '1h' });
+      
+      const res = Response.redirect(`${publicUrl}/dashboard?discord_connected=true`, 302);
+      res.headers.append('Set-Cookie', `rf_token=${jwtToken}; Path=/; HttpOnly; Secure; SameSite=Strict; Max-Age=3600`);
+      return res;
+    } finally {
+      await prisma.$disconnect();
+    }
     
   } catch (error) {
     console.error('Discord OAuth callback error:', error);

@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import { useAuth } from '@/lib/auth';
 // import Image from 'next/image'; // Temporarily disabled for deployment
 
 export default function LoginPage() {
@@ -11,35 +12,26 @@ export default function LoginPage() {
   });
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
+  const { login } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
     setError('');
 
-    try {
-      const response = await fetch('/api/auth/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(formData),
-      });
+    const result = await login(formData.email, formData.password);
 
-      const data = await response.json();
-
-      if (response.ok) {
-        // Store token and redirect
-        localStorage.setItem('token', data.token);
-        window.location.href = '/dashboard';
-      } else {
-        setError(data.message || 'Login failed');
+    if (result.success) {
+      // Redirect to dashboard - auth context will handle user state
+      window.location.href = '/dashboard';
+    } else {
+      setError(result.message || 'Login failed');
+      if (result.requiresVerification) {
+        setError('Please verify your email before logging in. Check your inbox for a verification link.');
       }
-    } catch (err) {
-      setError('An error occurred. Please try again.');
-    } finally {
-      setIsLoading(false);
     }
+
+    setIsLoading(false);
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {

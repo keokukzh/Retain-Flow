@@ -12,14 +12,16 @@ datasource db {
 
 model User {
   id                String         @id @default(uuid())
+  name              String?
   email             String         @unique
-  passwordHash      String
+  passwordHash      String?
   emailVerified     Boolean        @default(false)
   emailVerifiedAt   DateTime?
   createdAt         DateTime       @default(now())
   updatedAt         DateTime       @updatedAt
   
-  // Integration IDs
+  // OAuth IDs
+  googleId          String?        @unique
   discordId         String?        @unique
   whopId            String?        @unique
   shopifyId         String?        @unique
