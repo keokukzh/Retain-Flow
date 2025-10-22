@@ -16,7 +16,7 @@ export default function Hero() {
   return (
     <section 
       id="hero-section"
-      className="relative min-h-screen flex items-center justify-center overflow-hidden circuit-bg"
+      className="relative min-h-screen flex items-center justify-center overflow-hidden circuit-bg pt-28 md:pt-32"
     >
       {/* Background gradient overlay */}
       <div className="absolute inset-0 bg-gradient-to-br from-primary-950/80 via-secondary-900/60 to-primary-900/80" />
@@ -28,15 +28,7 @@ export default function Hero() {
 
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
         <div className={`transition-all duration-1000 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
-          {/* Animated Logo moved from header */}
-          <div className="mb-10 flex justify-center">
-            <div className="relative">
-              <div className="w-28 h-28 bg-gradient-to-r from-primary-500 to-blue-500 rounded-full glow-lg animate-pulse-slow flex items-center justify-center">
-                <span className="text-white font-bold text-3xl">RF</span>
-              </div>
-              <div className="absolute inset-0 rounded-full bg-gradient-to-r from-primary-500 to-blue-500 opacity-20 animate-ping" />
-            </div>
-          </div>
+          {/* Animated Logo removed for cleaner header/hero overlap */}
 
           {/* Main Headline */}
           <h1 className="text-4xl sm:text-5xl lg:text-7xl font-bold text-white mb-6 leading-relaxed">
