@@ -29,28 +29,14 @@ export default function VisualEditor() {
           'gjs-preset-webpage': {
             modalImportTitle: 'Import Template',
             modalImportLabel: '<div style="margin-bottom: 10px; font-size: 13px;">Paste here your HTML/CSS and click Import</div>',
-            modalImportContent(editor: any) {
-              return `${editor.getHtml()}<style>${editor.getCss()}</style>`;
-            },
+            modalImportContent: (editor: any) => `${editor.getHtml()}<style>${editor.getCss()}</style>`,
             filestackOpts: null,
             aviaryOpts: false,
             blocksBasicOpts: {
               blocks: ['column1', 'column2', 'column3', 'column3-7', 'text', 'link', 'image', 'video'],
               flexGrid: 1,
             },
-            customStyleManager: [{
-              name: 'General',
-              buildProps: ['float', 'display', 'position', 'top', 'right', 'left', 'bottom'],
-              properties: [{
-                type: 'integer',
-                name: 'The Width',
-                property: 'width',
-                units: ['px', '%'],
-                defaults: 'auto',
-                min: 0,
-              }]
-            }],
-          }
+          },
         },
         storageManager: {
           type: 'local',
@@ -61,20 +47,23 @@ export default function VisualEditor() {
         deviceManager: {
           devices: [
             {
+              id: 'desktop',
               name: 'Desktop',
               width: '',
             },
             {
+              id: 'tablet',
               name: 'Tablet',
               width: '768px',
               widthMedia: '992px',
             },
             {
+              id: 'mobile',
               name: 'Mobile',
-              width: '320px',
-              widthMedia: '768px',
-            }
-          ]
+              width: '375px',
+              widthMedia: '480px',
+            },
+          ],
         },
         panels: {
           defaults: [
@@ -103,7 +92,7 @@ export default function VisualEditor() {
                   togglable: false,
                 },
                 {
-                  id: 'show-style',
+                  id: 'show-styles',
                   active: true,
                   label: 'Styles',
                   command: 'show-styles',
@@ -112,13 +101,38 @@ export default function VisualEditor() {
                 {
                   id: 'show-traits',
                   active: true,
-                  label: 'Settings',
+                  label: 'Traits',
                   command: 'show-traits',
                   togglable: false,
-                }
+                },
               ],
-            }
-          ]
+            },
+            {
+              id: 'panel-devices',
+              el: '.panel__devices',
+              buttons: [
+                {
+                  id: 'device-desktop',
+                  label: 'D',
+                  command: 'set-device-desktop',
+                  active: true,
+                  togglable: false,
+                },
+                {
+                  id: 'device-tablet',
+                  label: 'T',
+                  command: 'set-device-tablet',
+                  togglable: false,
+                },
+                {
+                  id: 'device-mobile',
+                  label: 'M',
+                  command: 'set-device-mobile',
+                  togglable: false,
+                },
+              ],
+            },
+          ],
         },
         blockManager: {
           appendTo: '.blocks-container',
@@ -168,6 +182,10 @@ export default function VisualEditor() {
       // Add RetainFlow styles
       const cssComposer = grapesRef.current.CssComposer;
       cssComposer.addRules(RetainFlowStyles);
+
+      grapesRef.current.on('load', () => {
+        // Editor loaded
+      });
 
       // Add custom commands
       grapesRef.current.Commands.add('show-layers', {
@@ -227,21 +245,21 @@ export default function VisualEditor() {
     };
   }, []);
 
-  // Load templates
-  useEffect(() => {
-    const loadTemplates = async () => {
-      try {
-        const response = await fetch('/api/templates');
-        const data = await response.json();
-        if (data.success) {
-          setTemplates(data.templates);
-        }
-      } catch (error) {
-        // console.error('Error loading templates:', error);
-      }
-    };
-    loadTemplates();
-  }, []);
+        // Load templates
+        useEffect(() => {
+          const loadTemplates = async () => {
+            try {
+              const response = await fetch('/api/templates.json');
+              const data = await response.json();
+              if (data.success) {
+                setTemplates(data.templates);
+              }
+            } catch (error) {
+              // console.error('Error loading templates:', error);
+            }
+          };
+          loadTemplates();
+        }, []);
 
   const handleSave = async () => {
     if (grapesRef.current) {
@@ -322,31 +340,35 @@ export default function VisualEditor() {
     }
   };
 
-  const loadTemplate = async (templateId: string) => {
-    try {
-      const response = await fetch(`/api/templates/${templateId}`);
-      const data = await response.json();
-      
-      if (data.success && grapesRef.current) {
-        const template = data.template;
-        
-        // Clear current content
-        grapesRef.current.runCommand('core:canvas-clear');
-        
-        // Load template HTML
-        grapesRef.current.setComponents(template.html);
-        
-        // Load template CSS
-        grapesRef.current.setStyle(template.css);
-        
-        alert(`Template "${template.name}" loaded!`);
-        setShowTemplates(false);
-      }
-    } catch (error) {
-      // console.error('Error loading template:', error);
-      alert('Failed to load template!');
-    }
-  };
+        const loadTemplate = async (templateId: string) => {
+          try {
+            const response = await fetch('/api/templates.json');
+            const data = await response.json();
+            
+            if (data.success && grapesRef.current) {
+              const template = data.templates.find((t: any) => t.id === templateId);
+              
+              if (template) {
+                // Clear current content
+                grapesRef.current.runCommand('core:canvas-clear');
+                
+                // Load template HTML
+                grapesRef.current.setComponents(template.html);
+                
+                // Load template CSS
+                grapesRef.current.setStyle(template.css);
+                
+                alert(`Template "${template.name}" loaded!`);
+                setShowTemplates(false);
+              } else {
+                alert('Template not found!');
+              }
+            }
+          } catch (error) {
+            // console.error('Error loading template:', error);
+            alert('Failed to load template!');
+          }
+        };
 
   return (
     <div className="min-h-screen bg-gray-100">
@@ -377,77 +399,21 @@ export default function VisualEditor() {
 
       {/* Editor Layout */}
       <div className="editor-row">
-        <div className="editor-canvas">
-          <div className="panel__top">
-            <div className="panel__basic-actions">
-              <button className="btn btn-primary" data-action="undo">Undo</button>
-              <button className="btn btn-primary" data-action="redo">Redo</button>
-            </div>
-            <div className="panel__devices"></div>
-          </div>
-          <div className="editor-canvas__body">
-            <div ref={editorRef}></div>
-          </div>
+        <div className="panel__left w-1/5 bg-gray-50 border-r p-4">
+          <div className="panel__switcher mb-4"></div>
+          <div className="blocks-container mb-4"></div>
+          <div className="layers-container mb-4"></div>
+          <div className="styles-container mb-4"></div>
+          <div className="traits-container mb-4"></div>
         </div>
-        <div className="panel__right">
-          <div className="panel__switcher"></div>
-          <div className="blocks-container"></div>
-          <div className="layers-container"></div>
-          <div className="styles-container"></div>
-          <div className="traits-container"></div>
+        <div className="editor-container flex-grow relative">
+          <div ref={editorRef} className="h-full w-full"></div>
         </div>
+        <div className="panel__right w-1/5 bg-gray-50 border-l p-4">
+          {/* Right panel content */}
+        </div>
+        <div className="panel__devices absolute top-4 right-4 flex space-x-2"></div>
       </div>
-
-      <style jsx>{`
-        .editor-row {
-          display: flex;
-          height: calc(100vh - 80px);
-        }
-        .editor-canvas {
-          flex: 1;
-          display: flex;
-          flex-direction: column;
-        }
-        .panel__top {
-          background: #fff;
-          border-bottom: 1px solid #ddd;
-          padding: 10px;
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-        }
-        .panel__right {
-          width: 300px;
-          background: #fff;
-          border-left: 1px solid #ddd;
-          overflow-y: auto;
-        }
-        .panel__switcher {
-          padding: 10px;
-          border-bottom: 1px solid #ddd;
-        }
-        .blocks-container,
-        .layers-container,
-        .styles-container,
-        .traits-container {
-          padding: 10px;
-          border-bottom: 1px solid #eee;
-        }
-        .btn {
-          padding: 8px 16px;
-          border: none;
-          border-radius: 4px;
-          cursor: pointer;
-          margin-right: 5px;
-        }
-        .btn-primary {
-          background: #007bff;
-          color: white;
-        }
-        .btn-primary:hover {
-          background: #0056b3;
-        }
-      `}</style>
     </div>
   );
 }

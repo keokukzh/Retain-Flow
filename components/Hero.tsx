@@ -22,23 +22,23 @@ export default function Hero() {
       {/* Animated background elements */}
       <div className="absolute inset-0">
         <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-primary-500/10 rounded-full blur-3xl animate-pulse" />
-        <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }} />
+        <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl animate-pulse hero-ping" />
       </div>
 
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
         <div className={`transition-all duration-1000 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
-          {/* Animated Logo */}
-          <div className="mb-8 flex justify-center">
+          {/* Animated Logo moved from header */}
+          <div className="mb-10 flex justify-center">
             <div className="relative">
-              <div className="w-30 h-30 bg-gradient-to-r from-primary-500 to-blue-500 rounded-full glow-lg animate-pulse-slow flex items-center justify-center">
-                <span className="text-white font-bold text-2xl">RF</span>
+              <div className="w-28 h-28 bg-gradient-to-r from-primary-500 to-blue-500 rounded-full glow-lg animate-pulse-slow flex items-center justify-center">
+                <span className="text-white font-bold text-3xl">RF</span>
               </div>
               <div className="absolute inset-0 rounded-full bg-gradient-to-r from-primary-500 to-blue-500 opacity-20 animate-ping" />
             </div>
           </div>
 
           {/* Main Headline */}
-          <h1 className="text-4xl sm:text-5xl lg:text-7xl font-bold text-white mb-6 leading-tight">
+          <h1 className="text-4xl sm:text-5xl lg:text-7xl font-bold text-white mb-6 leading-relaxed">
             <span className="gradient-text">AI-Powered</span>
             <br />
             <span className="text-white">Retention Tool</span>
@@ -47,11 +47,10 @@ export default function Hero() {
           </h1>
 
           {/* Subtitle */}
-          <p className="text-xl sm:text-2xl text-gray-300 mb-8 max-w-3xl mx-auto leading-relaxed">
-            Reduce churn by up to 30% with intelligent automation, 
-            <span className="text-primary-300 font-semibold"> Discord integration</span>, and 
-            <span className="text-primary-300 font-semibold"> AI-powered insights</span> 
-            designed specifically for creator communities.
+          <p className="text-xl sm:text-2xl text-white/90 mb-8 max-w-3xl mx-auto leading-relaxed">
+            Reduce churn by up to 30%
+            <br className="hidden sm:block" />
+            with intelligent automation, <span className="font-bold text-primary-300">Discord integration</span>, and <span className="font-bold text-primary-300">AI-powered insights</span> designed specifically for creator communities.
           </p>
 
           {/* Key Benefits */}
@@ -91,7 +90,7 @@ export default function Hero() {
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
             <Link
               href="/register"
-              className="btn-glow bg-gradient-to-r from-primary-600 to-primary-700 hover:from-primary-700 hover:to-primary-800 text-white font-semibold py-4 px-8 rounded-xl transition-all duration-300 transform hover:scale-105 glow"
+              className="btn-glow bg-gradient-to-r from-primary-600 to-primary-700 hover:from-primary-700 hover:to-primary-800 text-white font-semibold py-5 px-10 rounded-xl transition-all duration-300 transform hover:scale-105 glow"
             >
               Start Free Trial
               <svg className="w-5 h-5 ml-2 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -101,7 +100,7 @@ export default function Hero() {
             
             <Link
               href="/demo"
-              className="bg-white/10 backdrop-blur-sm hover:bg-white/20 text-white font-semibold py-4 px-8 rounded-xl border border-white/20 transition-all duration-300"
+              className="bg-white/10 backdrop-blur-sm hover:bg-white/20 text-white font-semibold py-5 px-10 rounded-xl border border-white/20 transition-all duration-300"
             >
               Watch Demo
               <svg className="w-5 h-5 ml-2 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -112,13 +111,13 @@ export default function Hero() {
 
           {/* Trust Indicators */}
           <div className="mt-16 pt-8 border-t border-white/20">
-            <p className="text-gray-400 text-sm mb-6">Trusted by creators worldwide</p>
-            <div className="flex flex-wrap justify-center items-center gap-8 opacity-60">
-              <div className="text-white font-semibold">Discord</div>
-              <div className="text-white font-semibold">Whop</div>
-              <div className="text-white font-semibold">Shopify</div>
-              <div className="text-white font-semibold">Patreon</div>
-              <div className="text-white font-semibold">Gumroad</div>
+            <p className="text-white/80 text-sm mb-6">Trusted by creators worldwide</p>
+            <div className="flex flex-wrap justify-center items-center gap-8 opacity-80">
+              <img src="/integrations/discord.svg" alt="Discord" className="h-8 w-auto" />
+              <img src="/integrations/whop.svg" alt="Whop" className="h-8 w-auto" />
+              <img src="/integrations/shopify.svg" alt="Shopify" className="h-8 w-auto" />
+              <img src="/integrations/patreon.svg" alt="Patreon" className="h-8 w-auto" />
+              <img src="/integrations/gumroad.svg" alt="Gumroad" className="h-8 w-auto" />
             </div>
           </div>
         </div>
@@ -126,7 +125,7 @@ export default function Hero() {
 
       {/* Scroll indicator */}
       <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 animate-bounce">
-        <svg className="w-6 h-6 text-white/60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <svg className="w-8 h-8 text-white/70" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
         </svg>
       </div>

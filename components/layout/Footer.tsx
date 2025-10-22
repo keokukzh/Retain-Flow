@@ -102,6 +102,7 @@ export default function Footer() {
                   className="w-10 h-10 bg-gray-800 rounded-lg flex items-center justify-center hover:bg-primary-600 transition-colors"
                   target="_blank"
                   rel="noopener noreferrer"
+                  aria-label={social.name}
                 >
                   {social.icon}
                 </Link>

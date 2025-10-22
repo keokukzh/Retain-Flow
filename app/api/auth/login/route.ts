@@ -1,9 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server';
-import bcrypt from 'bcryptjs';
-import jwt from 'jsonwebtoken';
-import { PrismaClient } from '@prisma/client';
-
-const prisma = new PrismaClient();
 
 export async function POST(request: NextRequest) {
   try {
@@ -17,10 +12,27 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // For static export, we'll use mock authentication
+    // In production, this would connect to your database
+    const mockUsers = [
+      {
+        id: 'demo-user-1',
+        email: 'demo@retainflow.com',
+        password: 'demo123',
+        emailVerified: true,
+        createdAt: new Date(),
+      },
+      {
+        id: 'demo-user-2',
+        email: 'test@retainflow.com',
+        password: 'test123',
+        emailVerified: true,
+        createdAt: new Date(),
+      },
+    ];
+
     // Find user by email
-    const user = await prisma.user.findUnique({
-      where: { email },
-    });
+    const user = mockUsers.find(u => u.email === email);
 
     if (!user) {
       return NextResponse.json(
@@ -29,9 +41,8 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Verify password
-    const isValidPassword = await bcrypt.compare(password, user.passwordHash);
-    if (!isValidPassword) {
+    // Verify password (simple comparison for demo)
+    if (password !== user.password) {
       return NextResponse.json(
         { message: 'Invalid credentials' },
         { status: 401 }
@@ -46,15 +57,8 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Generate JWT token
-    const token = jwt.sign(
-      { 
-        userId: user.id, 
-        email: user.email 
-      },
-      process.env.JWT_SECRET!,
-      { expiresIn: '24h' }
-    );
+    // Generate mock JWT token
+    const token = `mock-jwt-token-${user.id}-${Date.now()}`;
 
     // Return success response
     return NextResponse.json({
@@ -69,12 +73,10 @@ export async function POST(request: NextRequest) {
     });
 
   } catch (error) {
-    // console.error('Login error:', error); // TODO: Add proper logging
+    console.error('Login error:', error);
     return NextResponse.json(
       { message: 'Internal server error' },
       { status: 500 }
     );
-  } finally {
-    await prisma.$disconnect();
   }
 }

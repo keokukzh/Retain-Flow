@@ -98,11 +98,11 @@ export default function IntegrationCards() {
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'connected':
-        return 'bg-green-100 text-green-800';
+        return 'bg-green-100 text-green-900';
       case 'available':
-        return 'bg-blue-100 text-blue-800';
+        return 'bg-green-100 text-green-900';
       case 'coming-soon':
-        return 'bg-yellow-100 text-yellow-800';
+        return 'bg-yellow-100 text-yellow-900';
       default:
         return 'bg-gray-100 text-gray-800';
     }
@@ -149,8 +149,8 @@ export default function IntegrationCards() {
               {/* Integration Header */}
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center">
-                  <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center mr-4">
-                    <span className="text-gray-600 font-bold text-sm">{integration.name.charAt(0)}</span>
+                  <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center mr-4 overflow-hidden">
+                    <img src={integration.logo} alt={`${integration.name} logo`} className="w-10 h-10 object-contain" />
                   </div>
                   <h3 className="text-xl font-semibold text-gray-900">
                     {integration.name}
@@ -230,8 +230,8 @@ export default function IntegrationCards() {
                 {/* Modal Header */}
                 <div className="flex items-center justify-between mb-6">
                   <div className="flex items-center">
-                    <div className="w-16 h-16 bg-gray-100 rounded-xl flex items-center justify-center mr-4">
-                      <span className="text-gray-600 font-bold text-lg">{selectedIntegration.name.charAt(0)}</span>
+                    <div className="w-16 h-16 bg-gray-100 rounded-xl flex items-center justify-center mr-4 overflow-hidden">
+                      <img src={selectedIntegration.logo} alt={`${selectedIntegration.name} logo`} className="w-14 h-14 object-contain" />
                     </div>
                     <div>
                       <h3 className="text-2xl font-bold text-gray-900">
@@ -249,6 +249,8 @@ export default function IntegrationCards() {
                   <button
                     onClick={() => setSelectedIntegration(null)}
                     className="text-gray-400 hover:text-gray-600 transition-colors"
+                    aria-label="Close integration details"
+                    title="Close"
                   >
                     <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />

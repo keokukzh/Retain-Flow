@@ -158,7 +158,7 @@ export default function Testimonials() {
 
         {/* Main Testimonial */}
         <div className="max-w-4xl mx-auto mb-12">
-          <div className="bg-gradient-to-br from-primary-50 to-blue-50 rounded-2xl p-8 md:p-12 relative overflow-hidden">
+          <div className="bg-gradient-to-br from-primary-50 to-blue-50 rounded-2xl p-8 md:p-12 relative overflow-hidden shadow">
             {/* Background decoration */}
             <div className="absolute top-0 right-0 w-32 h-32 bg-primary-200 rounded-full -translate-y-16 translate-x-16 opacity-20" />
             <div className="absolute bottom-0 left-0 w-24 h-24 bg-blue-200 rounded-full translate-y-12 -translate-x-12 opacity-20" />
@@ -186,8 +186,8 @@ export default function Testimonials() {
               {/* Author */}
               <div className="flex items-center justify-center mb-8">
                 <div className="flex items-center">
-                  <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center mr-4 shadow-lg">
-                    <span className="text-primary-600 font-bold text-lg">{currentTestimonial.name.charAt(0)}</span>
+                  <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center mr-4 shadow-lg overflow-hidden">
+                    <img src={currentTestimonial.avatar} alt={currentTestimonial.name} className="w-16 h-16 object-cover" />
                   </div>
                   <div className="text-left">
                     <div className="font-semibold text-gray-900 text-lg">
@@ -230,6 +230,8 @@ export default function Testimonials() {
           <button
             onClick={prevTestimonial}
             className="p-2 rounded-full bg-gray-100 hover:bg-gray-200 transition-colors"
+            aria-label="Previous testimonial"
+            title="Previous"
           >
             <svg className="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
@@ -245,6 +247,8 @@ export default function Testimonials() {
                 className={`w-3 h-3 rounded-full transition-colors ${
                   index === currentIndex ? 'bg-primary-600' : 'bg-gray-300'
                 }`}
+                aria-label={`Go to testimonial ${index + 1}`}
+                title={`Testimonial ${index + 1}`}
               />
             ))}
           </div>
@@ -252,6 +256,8 @@ export default function Testimonials() {
           <button
             onClick={nextTestimonial}
             className="p-2 rounded-full bg-gray-100 hover:bg-gray-200 transition-colors"
+            aria-label="Next testimonial"
+            title="Next"
           >
             <svg className="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />

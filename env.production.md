@@ -24,7 +24,8 @@ NEXTAUTH_URL="https://aidevelo.ai"
 ### External Services
 ```bash
 # Stripe (for subscriptions and payments)
-STRIPE_API_KEY="sk_live_..."
+STRIPE_SECRET_KEY="sk_live_..."
+STRIPE_PUBLISHABLE_KEY="pk_live_..."
 STRIPE_WEBHOOK_SECRET="whsec_..."
 
 # Discord Bot

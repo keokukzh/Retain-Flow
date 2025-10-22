@@ -1,7 +1,6 @@
 'use client';
 
 import { useState } from 'react';
-import Link from 'next/link';
 import { CheckIcon, XMarkIcon } from '@heroicons/react/24/outline';
 
 interface Plan {
@@ -85,16 +84,17 @@ const plans: Plan[] = [
 
 export default function PricingTable() {
   const [billingPeriod, setBillingPeriod] = useState<'monthly' | 'yearly'>('monthly');
+  const [loading, setLoading] = useState<string | null>(null);
 
   const getPrice = (plan: Plan) => {
     if (plan.price === 0) return 'Free';
-    
+
     const yearlyDiscount = 0.2; // 20% discount for yearly
-    const finalPrice = billingPeriod === 'yearly' 
-      ? Math.round(plan.price * 12 * (1 - yearlyDiscount)) / 12
-      : plan.price;
-    
-    return `$${finalPrice}`;
+    if (billingPeriod === 'yearly') {
+      const perMonth = (plan.price * (1 - yearlyDiscount));
+      return `$${perMonth.toFixed(2)}`; // e.g., $39.20
+    }
+    return `$${plan.price}`;
   };
 
   const getYearlySavings = (plan: Plan) => {
@@ -103,6 +103,60 @@ export default function PricingTable() {
     const monthlyPrice = plan.price * 12;
     const savings = monthlyPrice - yearlyPrice;
     return `Save $${Math.round(savings)}/year`;
+  };
+
+  const handleSubscribe = async (plan: Plan) => {
+    if (plan.price === 0) {
+      // Free plan - redirect to signup
+      window.location.href = '/register';
+      return;
+    }
+
+    setLoading(plan.name);
+
+    try {
+      // Get price ID based on plan and billing period
+      const priceId = getPriceId(plan.name, billingPeriod);
+      
+      const response = await fetch('/api/subscriptions/create', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          userId: 'demo-user-id', // In real app, get from auth context
+          priceId,
+          successUrl: `${window.location.origin}/billing?success=true`,
+          cancelUrl: `${window.location.origin}/#pricing`,
+        }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        window.location.href = data.url;
+      } else {
+        throw new Error('Failed to create checkout session');
+      }
+    } catch (error) {
+      // console.error('Subscription error:', error);
+      alert('Failed to start subscription. Please try again.');
+    } finally {
+      setLoading(null);
+    }
+  };
+
+  const getPriceId = (planName: string, period: 'monthly' | 'yearly') => {
+    // These would be your actual Stripe Price IDs
+    const priceIds: Record<string, Record<string, string>> = {
+      'Pro': {
+        monthly: 'price_pro_monthly',
+        yearly: 'price_pro_yearly',
+      },
+      'Growth': {
+        monthly: 'price_growth_monthly',
+        yearly: 'price_growth_yearly',
+      },
+    };
+
+    return priceIds[planName]?.[period] || 'price_default';
   };
 
   return (
@@ -152,9 +206,9 @@ export default function PricingTable() {
           {plans.map((plan) => (
             <div
               key={plan.name}
-              className={`relative bg-white rounded-2xl shadow-lg border-2 p-8 ${
+              className={`relative bg-white rounded-2xl shadow-lg border-2 p-8 transition-transform ${
                 plan.popular
-                  ? 'border-primary-500 ring-2 ring-primary-500/20'
+                  ? 'border-primary-500 ring-2 ring-primary-500/20 md:scale-105 shadow-xl'
                   : 'border-gray-200'
               }`}
             >
@@ -176,7 +230,7 @@ export default function PricingTable() {
                   </span>
                   {plan.price > 0 && (
                     <span className="text-gray-600 ml-2">
-                      /{billingPeriod === 'yearly' ? 'month' : plan.period}
+                      /{billingPeriod === 'yearly' ? 'month billed yearly' : plan.period}
                     </span>
                   )}
                 </div>
@@ -206,9 +260,10 @@ export default function PricingTable() {
               </div>
 
               {/* CTA Button */}
-              <Link
-                href={plan.href}
-                className={`w-full block text-center py-3 px-6 rounded-xl font-semibold transition-all ${
+              <button
+                onClick={() => handleSubscribe(plan)}
+                disabled={loading === plan.name}
+                className={`w-full block text-center py-3 px-6 rounded-xl font-semibold transition-all disabled:opacity-50 disabled:cursor-not-allowed ${
                   plan.popular
                     ? 'bg-primary-600 hover:bg-primary-700 text-white btn-glow'
                     : plan.name === 'Free'
@@ -216,8 +271,18 @@ export default function PricingTable() {
                     : 'bg-gray-900 hover:bg-gray-800 text-white'
                 }`}
               >
-                {plan.cta}
-              </Link>
+                {loading === plan.name ? (
+                  <>
+                    <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white inline" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    Processing...
+                  </>
+                ) : (
+                  plan.cta
+                )}
+              </button>
             </div>
           ))}
         </div>
@@ -229,7 +294,7 @@ export default function PricingTable() {
           </h3>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto text-left">
-            <div>
+            <div className="bg-gray-50 rounded-lg p-6">
               <h4 className="font-semibold text-gray-900 mb-2">
                 Can I change plans anytime?
               </h4>
@@ -238,7 +303,7 @@ export default function PricingTable() {
               </p>
             </div>
             
-            <div>
+            <div className="bg-gray-50 rounded-lg p-6">
               <h4 className="font-semibold text-gray-900 mb-2">
                 What happens if I exceed my member limit?
               </h4>
@@ -247,7 +312,7 @@ export default function PricingTable() {
               </p>
             </div>
             
-            <div>
+            <div className="bg-gray-50 rounded-lg p-6">
               <h4 className="font-semibold text-gray-900 mb-2">
                 Do you offer refunds?
               </h4>
@@ -256,7 +321,7 @@ export default function PricingTable() {
               </p>
             </div>
             
-            <div>
+            <div className="bg-gray-50 rounded-lg p-6">
               <h4 className="font-semibold text-gray-900 mb-2">
                 Is there a free trial?
               </h4>

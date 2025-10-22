@@ -23,6 +23,7 @@ model User {
   discordId         String?        @unique
   whopId            String?        @unique
   shopifyId         String?        @unique
+  stripeCustomerId  String?        @unique
   
   // Relations
   subscriptions     Subscription[]
@@ -185,6 +186,7 @@ model DiscordGuild {
   guildId     String   @unique // Discord guild ID
   name        String
   ownerId     String
+  memberCount Int      @default(0)
   
   // Configuration
   welcomeChannelId String?
@@ -216,12 +218,13 @@ model DiscordMember {
   // Activity tracking
   lastActiveAt DateTime?
   messageCount Int      @default(0)
+  lastRetentionMessage DateTime?
   
   // Timestamps
   joinedAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   
-  @@unique([guildId, userId])
+  @@unique([userId, guildId])
   @@map("discord_members")
 }
 
