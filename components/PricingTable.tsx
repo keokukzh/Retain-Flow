@@ -97,13 +97,7 @@ export default function PricingTable() {
     return `$${plan.price}`;
   };
 
-  const getYearlySavings = (plan: Plan) => {
-    if (plan.price === 0) return null;
-    const yearlyPrice = plan.price * 12 * 0.8; // 20% discount
-    const monthlyPrice = plan.price * 12;
-    const savings = monthlyPrice - yearlyPrice;
-    return `Save $${Math.round(savings)}/year`;
-  };
+  // Removed savings label in refactor; pricing cards already highlight yearly billing
 
   const handleSubscribe = async (plan: Plan) => {
     if (plan.price === 0) {
