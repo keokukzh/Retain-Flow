@@ -16,10 +16,10 @@ export async function onRequestGet(context: { request: Request; env: any }) {
 
     // Check if environment variables are configured
     if (!context.env.GOOGLE_CLIENT_ID || !context.env.GOOGLE_CLIENT_SECRET) {
-      return new Response('Google OAuth not configured. Please set GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET environment variables.', { status: 500 });
+      return new Response('Google OAuth not configured. Please set GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET environment variables in Cloudflare Pages settings.', { status: 500 });
     }
 
-    const redirectUri = `${context.env.PUBLIC_URL || 'https://e30251a6.retainflow-prod.pages.dev'}/api/auth/oauth/google/callback`;
+    const redirectUri = `${context.env.PUBLIC_URL || 'https://2f17e891.retainflow-prod.pages.dev'}/api/auth/oauth/google/callback`;
     
     const body = new URLSearchParams({
       client_id: context.env.GOOGLE_CLIENT_ID,
@@ -74,15 +74,18 @@ export async function onRequestGet(context: { request: Request; env: any }) {
     }
 
     // Create JWT token
-    const jwtSecret = context.env.JWT_SECRET || 'fallback-secret-for-development';
+    if (!context.env.JWT_SECRET) {
+      return new Response('JWT_SECRET not configured. Please set JWT_SECRET environment variable in Cloudflare Pages settings.', { status: 500 });
+    }
+    
     const jwtToken = jwt.sign({ 
       sub: user.sub, 
       email: user.email, 
       name: user.name,
       provider: 'google' 
-    }, jwtSecret, { expiresIn: '1h' });
+    }, context.env.JWT_SECRET, { expiresIn: '1h' });
     
-    const publicUrl = context.env.PUBLIC_URL || 'https://e30251a6.retainflow-prod.pages.dev';
+    const publicUrl = context.env.PUBLIC_URL || 'https://2f17e891.retainflow-prod.pages.dev';
     const res = Response.redirect(`${publicUrl}/dashboard?google_connected=true`, 302);
     res.headers.append('Set-Cookie', `rf_token=${jwtToken}; Path=/; HttpOnly; Secure; SameSite=Strict; Max-Age=3600`);
     return res;

@@ -47,24 +47,6 @@ export default function DashboardPage() {
   });
 
   useEffect(() => {
-    // Check for demo login parameters
-    const urlParams = new URLSearchParams(window.location.search);
-    const demoLogin = urlParams.get('demo_login');
-    const demoUser = urlParams.get('user');
-    const demoEmail = urlParams.get('email');
-    
-    if (demoLogin && demoUser && demoEmail) {
-      // Create demo token and store it
-      const demoToken = `demo_${demoLogin}_${Date.now()}`;
-      localStorage.setItem('token', demoToken);
-      
-      // Clean URL
-      window.history.replaceState({}, document.title, window.location.pathname);
-      
-      // Show demo notification
-      alert(`Demo Login erfolgreich!\nProvider: ${demoLogin}\nUser: ${demoUser}\nEmail: ${demoEmail}`);
-    }
-
     // Check authentication
     const token = localStorage.getItem('token');
     if (!token) {
@@ -125,25 +107,30 @@ export default function DashboardPage() {
       }
       
       if (provider === 'shopify') {
-        // Demo Shopify connection
-        alert('Demo Shopify Verbindung!\n\nIn der echten Version würdest du zu Shopify OAuth weitergeleitet.\n\nDemo: Shopify Store "Demo Store" verbunden!');
-        setIntegrations(prev => ({
-          ...prev,
-          shopify: { connected: true }
-        }));
+        // Redirect to Shopify OAuth
+        window.location.href = '/api/integrations/shopify/start';
         return;
       }
       
       if (provider === 'whop') {
-        // Demo Whop connection
-        const apiKey = prompt('Demo Whop API Key eingeben (beliebiger Text):');
+        // Show API key input modal
+        const apiKey = prompt('Enter your Whop API key:');
         if (!apiKey) return;
         
-        alert(`Demo Whop Verbindung erfolgreich!\n\nAPI Key: ${apiKey}\n\nIn der echten Version würde der API Key validiert.`);
-        setIntegrations(prev => ({
-          ...prev,
-          whop: { connected: true }
-        }));
+        const response = await fetch('/api/integrations/whop/connect', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ apiKey }),
+        });
+        
+        if (response.ok) {
+          await fetchIntegrations();
+        } else {
+          const error = await response.json();
+          alert(`Failed to connect Whop: ${error.error}`);
+        }
         return;
       }
       
@@ -171,23 +158,10 @@ export default function DashboardPage() {
       
       if (response.ok) {
         const data = await response.json();
-        
-        if (data.demo) {
-          // Demo mode - show success message
-          const price = interval === 'monthly' ? '$49/month' : '$490/year (17% savings)';
-          alert(`Demo Checkout erfolgreich!\nPlan: RetainFlow Pro\nPreis: ${price}\n\nIn der echten Version würdest du zu Stripe weitergeleitet.`);
-          
-          // Simulate successful subscription
-          setIntegrations(prev => ({
-            ...prev,
-            stripe: { connected: true }
-          }));
-        } else {
-          // Real Stripe checkout
-          window.location.href = data.url;
-        }
+        window.location.href = data.url;
       } else {
-        console.error('Failed to create checkout session');
+        const error = await response.json();
+        alert(`Failed to create checkout session: ${error.error}`);
       }
     } catch (error) {
       console.error('Error creating checkout session:', error);

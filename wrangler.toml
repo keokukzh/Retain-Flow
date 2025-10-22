@@ -11,16 +11,28 @@ compatibility_flags = ["nodejs_compat"]
 # preview_id = "your-preview-kv-namespace-id-here"
 
 [vars]
-# PUBLIC_URL = "https://aidevelo.ai"
-# JWT_SECRET = "set-in-dashboard"
-# DISCORD_CLIENT_ID = "set-in-dashboard"
-# DISCORD_CLIENT_SECRET = "set-in-dashboard"
-# GOOGLE_CLIENT_ID = "set-in-dashboard"
-# GOOGLE_CLIENT_SECRET = "set-in-dashboard"
-# STRIPE_SECRET_KEY = "set-in-dashboard"
-# STRIPE_WEBHOOK_SECRET = "set-in-dashboard"
-# STRIPE_PRICE_ID_PRO = "set-in-dashboard"
-# WHOP_WEBHOOK_SECRET = "set-in-dashboard"
-# SHOPIFY_CLIENT_ID = "set-in-dashboard"
-# SHOPIFY_CLIENT_SECRET = "set-in-dashboard"
+# Production Environment Variables
+# Set these in Cloudflare Pages → retainflow-prod → Settings → Environment Variables → Production
+# See PRODUCTION_SETUP.md for detailed setup instructions
+
+# OAuth Configuration
+# GOOGLE_CLIENT_ID = "your_google_client_id_from_console_cloud_google_com"
+# GOOGLE_CLIENT_SECRET = "your_google_client_secret_from_console_cloud_google_com"
+# DISCORD_CLIENT_ID = "your_discord_client_id_from_discord_com_developers"
+# DISCORD_CLIENT_SECRET = "your_discord_client_secret_from_discord_com_developers"
+
+# Stripe Live Mode Configuration
+# STRIPE_SECRET_KEY = "sk_live_your_stripe_secret_key_from_dashboard_stripe_com"
+# STRIPE_PRICE_ID_PRO_MONTHLY = "price_your_monthly_price_id_from_stripe_products"
+# STRIPE_PRICE_ID_PRO_YEARLY = "price_your_yearly_price_id_from_stripe_products"
+# STRIPE_WEBHOOK_SECRET = "whsec_your_webhook_secret_from_stripe_webhooks"
+
+# Security & URLs
+# JWT_SECRET = "your_32_character_random_string_generated_secret"
+# PUBLIC_URL = "https://2f17e891.retainflow-prod.pages.dev"
+
+# Optional Integrations (not required for basic functionality)
+# WHOP_WEBHOOK_SECRET = "your_whop_webhook_secret"
+# SHOPIFY_CLIENT_ID = "your_shopify_client_id"
+# SHOPIFY_CLIENT_SECRET = "your_shopify_client_secret"
 

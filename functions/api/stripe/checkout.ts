@@ -2,13 +2,9 @@ export async function onRequestPost(context: { request: Request; env: any }) {
   try {
     const { plan = 'pro', interval = 'monthly' } = await context.request.json();
     
-    // If Stripe is not configured, return demo mode
+    // Require Stripe configuration
     if (!context.env.STRIPE_SECRET_KEY) {
-      const publicUrl = context.env.PUBLIC_URL || 'https://d84348bc.retainflow-prod.pages.dev';
-      return json({ 
-        url: `${publicUrl}/dashboard?demo_checkout=true&plan=${plan}&interval=${interval}`,
-        demo: true 
-      }, 200);
+      return json({ error: 'Stripe not configured. Please set STRIPE_SECRET_KEY environment variable in Cloudflare Pages settings.' }, 500);
     }
 
     const stripe = require('stripe')(context.env.STRIPE_SECRET_KEY);
@@ -23,6 +19,12 @@ export async function onRequestPost(context: { request: Request; env: any }) {
       priceId = context.env.STRIPE_PRICE_ID_PRO_MONTHLY; // fallback
     }
     
+    if (!priceId) {
+      return json({ error: 'Stripe price ID not configured. Please set STRIPE_PRICE_ID_PRO_MONTHLY and STRIPE_PRICE_ID_PRO_YEARLY environment variables.' }, 500);
+    }
+    
+    const publicUrl = context.env.PUBLIC_URL || 'https://2f17e891.retainflow-prod.pages.dev';
+    
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ['card'],
       line_items: [
@@ -32,8 +34,8 @@ export async function onRequestPost(context: { request: Request; env: any }) {
         },
       ],
       mode: 'subscription',
-      success_url: `${context.env.PUBLIC_URL}/dashboard?success=true&plan=${plan}&interval=${interval}`,
-      cancel_url: `${context.env.PUBLIC_URL}/dashboard?canceled=true`,
+      success_url: `${publicUrl}/dashboard?success=true&plan=${plan}&interval=${interval}`,
+      cancel_url: `${publicUrl}/dashboard?canceled=true`,
       metadata: {
         source: 'retainflow_dashboard',
         plan: plan,
