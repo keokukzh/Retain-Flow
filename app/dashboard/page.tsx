@@ -94,6 +94,47 @@ export default function DashboardPage() {
 
   const handleConnectIntegration = async (provider: string) => {
     try {
+      if (provider === 'discord') {
+        // Redirect to Discord OAuth
+        window.location.href = '/api/auth/oauth/discord/start';
+        return;
+      }
+      
+      if (provider === 'google') {
+        // Redirect to Google OAuth
+        window.location.href = '/api/auth/oauth/google/start';
+        return;
+      }
+      
+      if (provider === 'shopify') {
+        // Redirect to Shopify OAuth
+        window.location.href = '/api/integrations/shopify/start';
+        return;
+      }
+      
+      if (provider === 'whop') {
+        // Show API key input modal
+        const apiKey = prompt('Enter your Whop API key:');
+        if (!apiKey) return;
+        
+        const response = await fetch('/api/integrations/whop/connect', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ apiKey }),
+        });
+        
+        if (response.ok) {
+          await fetchIntegrations();
+        } else {
+          const error = await response.json();
+          alert(`Failed to connect Whop: ${error.error}`);
+        }
+        return;
+      }
+      
+      // Default POST request for other providers
       const response = await fetch(`/api/integrations/${provider}/connect`, {
         method: 'POST',
       });
@@ -102,6 +143,47 @@ export default function DashboardPage() {
       }
     } catch (error) {
       // console.error('Failed to connect integration:', error);
+    }
+  };
+
+  const handleStripeCheckout = async (interval: 'monthly' | 'yearly') => {
+    try {
+      const response = await fetch('/api/stripe/checkout', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ plan: 'pro', interval }),
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        window.location.href = data.url;
+      } else {
+        console.error('Failed to create checkout session');
+      }
+    } catch (error) {
+      console.error('Error creating checkout session:', error);
+    }
+  };
+
+  const handleStripePortal = async () => {
+    try {
+      const response = await fetch('/api/stripe/portal', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        window.location.href = data.url;
+      } else {
+        console.error('Failed to create portal session');
+      }
+    } catch (error) {
+      console.error('Error creating portal session:', error);
     }
   };
 
@@ -263,24 +345,57 @@ export default function DashboardPage() {
                 <button className="w-full bg-primary-600 hover:bg-primary-700 text-white py-3 px-4 rounded-lg font-medium transition-colors">
                   Create Retention Campaign
                 </button>
-                <button 
-                  onClick={() => handleConnectIntegration('stripe')}
-                  className="w-full bg-gray-100 hover:bg-gray-200 text-gray-900 py-3 px-4 rounded-lg font-medium transition-colors"
-                >
-                  {integrations.stripe.connected ? 'Stripe Connected' : 'Connect Stripe'}
-                </button>
-                <button 
-                  onClick={() => handleConnectIntegration('discord')}
-                  className="w-full bg-gray-100 hover:bg-gray-200 text-gray-900 py-3 px-4 rounded-lg font-medium transition-colors"
-                >
-                  {integrations.discord.connected ? 'Discord Connected' : 'Connect Discord'}
-                </button>
-                <button 
-                  onClick={() => handleConnectIntegration('whop')}
-                  className="w-full bg-gray-100 hover:bg-gray-200 text-gray-900 py-3 px-4 rounded-lg font-medium transition-colors"
-                >
-                  {integrations.whop.connected ? 'Whop Connected' : 'Connect Whop'}
-                </button>
+                
+                {/* Billing Section */}
+                <div className="border-t pt-4">
+                  <h3 className="text-sm font-medium text-gray-900 mb-3">Billing</h3>
+                  {integrations.stripe.connected ? (
+                    <button 
+                      onClick={handleStripePortal}
+                      className="w-full bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded-lg text-sm font-medium transition-colors"
+                    >
+                      Manage Billing
+                    </button>
+                  ) : (
+                    <div className="space-y-2">
+                      <button 
+                        onClick={() => handleStripeCheckout('monthly')}
+                        className="w-full bg-primary-600 hover:bg-primary-700 text-white py-2 px-4 rounded-lg text-sm font-medium transition-colors"
+                      >
+                        Upgrade to Pro ($49/mo)
+                      </button>
+                      <button 
+                        onClick={() => handleStripeCheckout('yearly')}
+                        className="w-full bg-gray-100 hover:bg-gray-200 text-gray-900 py-2 px-4 rounded-lg text-sm font-medium transition-colors"
+                      >
+                        Save 17% - Yearly ($490/yr)
+                      </button>
+                    </div>
+                  )}
+                </div>
+
+                {/* Integrations Section */}
+                <div className="border-t pt-4">
+                  <h3 className="text-sm font-medium text-gray-900 mb-3">Integrations</h3>
+                  <button 
+                    onClick={() => handleConnectIntegration('discord')}
+                    className="w-full bg-gray-100 hover:bg-gray-200 text-gray-900 py-2 px-4 rounded-lg text-sm font-medium transition-colors mb-2"
+                  >
+                    {integrations.discord.connected ? '✓ Discord Connected' : 'Connect Discord'}
+                  </button>
+                  <button 
+                    onClick={() => handleConnectIntegration('whop')}
+                    className="w-full bg-gray-100 hover:bg-gray-200 text-gray-900 py-2 px-4 rounded-lg text-sm font-medium transition-colors mb-2"
+                  >
+                    {integrations.whop.connected ? '✓ Whop Connected' : 'Connect Whop'}
+                  </button>
+                  <button 
+                    onClick={() => handleConnectIntegration('shopify')}
+                    className="w-full bg-gray-100 hover:bg-gray-200 text-gray-900 py-2 px-4 rounded-lg text-sm font-medium transition-colors"
+                  >
+                    {integrations.shopify.connected ? '✓ Shopify Connected' : 'Connect Shopify'}
+                  </button>
+                </div>
               </div>
             </div>
 
