@@ -2,8 +2,13 @@ export async function onRequestPost(context: { request: Request; env: any }) {
   try {
     const { plan = 'pro', interval = 'monthly' } = await context.request.json();
     
+    // If Stripe is not configured, return demo mode
     if (!context.env.STRIPE_SECRET_KEY) {
-      return json({ error: 'Stripe not configured' }, 500);
+      const publicUrl = context.env.PUBLIC_URL || 'https://d84348bc.retainflow-prod.pages.dev';
+      return json({ 
+        url: `${publicUrl}/dashboard?demo_checkout=true&plan=${plan}&interval=${interval}`,
+        demo: true 
+      }, 200);
     }
 
     const stripe = require('stripe')(context.env.STRIPE_SECRET_KEY);

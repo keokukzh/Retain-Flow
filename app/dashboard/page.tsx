@@ -47,6 +47,24 @@ export default function DashboardPage() {
   });
 
   useEffect(() => {
+    // Check for demo login parameters
+    const urlParams = new URLSearchParams(window.location.search);
+    const demoLogin = urlParams.get('demo_login');
+    const demoUser = urlParams.get('user');
+    const demoEmail = urlParams.get('email');
+    
+    if (demoLogin && demoUser && demoEmail) {
+      // Create demo token and store it
+      const demoToken = `demo_${demoLogin}_${Date.now()}`;
+      localStorage.setItem('token', demoToken);
+      
+      // Clean URL
+      window.history.replaceState({}, document.title, window.location.pathname);
+      
+      // Show demo notification
+      alert(`Demo Login erfolgreich!\nProvider: ${demoLogin}\nUser: ${demoUser}\nEmail: ${demoEmail}`);
+    }
+
     // Check authentication
     const token = localStorage.getItem('token');
     if (!token) {
@@ -95,42 +113,37 @@ export default function DashboardPage() {
   const handleConnectIntegration = async (provider: string) => {
     try {
       if (provider === 'discord') {
-        // Redirect to Discord OAuth
+        // Redirect to Discord OAuth (will work in demo mode)
         window.location.href = '/api/auth/oauth/discord/start';
         return;
       }
       
       if (provider === 'google') {
-        // Redirect to Google OAuth
+        // Redirect to Google OAuth (will work in demo mode)
         window.location.href = '/api/auth/oauth/google/start';
         return;
       }
       
       if (provider === 'shopify') {
-        // Redirect to Shopify OAuth
-        window.location.href = '/api/integrations/shopify/start';
+        // Demo Shopify connection
+        alert('Demo Shopify Verbindung!\n\nIn der echten Version würdest du zu Shopify OAuth weitergeleitet.\n\nDemo: Shopify Store "Demo Store" verbunden!');
+        setIntegrations(prev => ({
+          ...prev,
+          shopify: { connected: true }
+        }));
         return;
       }
       
       if (provider === 'whop') {
-        // Show API key input modal
-        const apiKey = prompt('Enter your Whop API key:');
+        // Demo Whop connection
+        const apiKey = prompt('Demo Whop API Key eingeben (beliebiger Text):');
         if (!apiKey) return;
         
-        const response = await fetch('/api/integrations/whop/connect', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ apiKey }),
-        });
-        
-        if (response.ok) {
-          await fetchIntegrations();
-        } else {
-          const error = await response.json();
-          alert(`Failed to connect Whop: ${error.error}`);
-        }
+        alert(`Demo Whop Verbindung erfolgreich!\n\nAPI Key: ${apiKey}\n\nIn der echten Version würde der API Key validiert.`);
+        setIntegrations(prev => ({
+          ...prev,
+          whop: { connected: true }
+        }));
         return;
       }
       
@@ -158,7 +171,21 @@ export default function DashboardPage() {
       
       if (response.ok) {
         const data = await response.json();
-        window.location.href = data.url;
+        
+        if (data.demo) {
+          // Demo mode - show success message
+          const price = interval === 'monthly' ? '$49/month' : '$490/year (17% savings)';
+          alert(`Demo Checkout erfolgreich!\nPlan: RetainFlow Pro\nPreis: ${price}\n\nIn der echten Version würdest du zu Stripe weitergeleitet.`);
+          
+          // Simulate successful subscription
+          setIntegrations(prev => ({
+            ...prev,
+            stripe: { connected: true }
+          }));
+        } else {
+          // Real Stripe checkout
+          window.location.href = data.url;
+        }
       } else {
         console.error('Failed to create checkout session');
       }

@@ -1,14 +1,17 @@
 export async function onRequestGet(context: { env: any }) {
   try {
-    // Check if Discord OAuth is configured
+    // Use test credentials if not configured
+    const clientId = context.env.DISCORD_CLIENT_ID || 'test-discord-client-id';
+    const publicUrl = context.env.PUBLIC_URL || 'https://d84348bc.retainflow-prod.pages.dev';
+    
+    // If no real credentials, redirect to a demo page
     if (!context.env.DISCORD_CLIENT_ID) {
-      return new Response('Discord OAuth not configured. Please set DISCORD_CLIENT_ID environment variable.', { status: 500 });
+      return Response.redirect(`${publicUrl}/dashboard?demo_login=discord&user=Demo User#1234&email=demo@example.com`, 302);
     }
 
-    const publicUrl = context.env.PUBLIC_URL || 'https://e30251a6.retainflow-prod.pages.dev';
     const redirect = `${publicUrl}/api/auth/oauth/discord/callback`;
     const scope = 'identify email guilds';
-    const url = `https://discord.com/api/oauth2/authorize?client_id=${encodeURIComponent(context.env.DISCORD_CLIENT_ID)}&response_type=code&redirect_uri=${encodeURIComponent(redirect)}&scope=${encodeURIComponent(scope)}`;
+    const url = `https://discord.com/api/oauth2/authorize?client_id=${encodeURIComponent(clientId)}&response_type=code&redirect_uri=${encodeURIComponent(redirect)}&scope=${encodeURIComponent(scope)}`;
     return Response.redirect(url, 302);
   } catch (error) {
     console.error('Discord OAuth start error:', error);
