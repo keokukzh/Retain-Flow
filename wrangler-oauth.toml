@@ -1,0 +1,22 @@
+# OAuth Workers Configuration
+name = "retain-flow-oauth"
+main = "workers/oauth-google.js"
+compatibility_date = "2024-10-01"
+compatibility_flags = ["nodejs_compat"]
+
+# Environment Variables
+[vars]
+PUBLIC_URL = "https://retain-flow-new.pages.dev"
+
+# KV Namespace for OAuth States
+[[kv_namespaces]]
+binding = "OAUTH_STATES"
+id = "your-oauth-states-kv-id"
+preview_id = "your-oauth-states-preview-kv-id"
+
+# Secrets (set via wrangler secret put)
+# GOOGLE_CLIENT_ID
+# GOOGLE_CLIENT_SECRET
+# DISCORD_CLIENT_ID
+# DISCORD_CLIENT_SECRET
+# JWT_SECRET
