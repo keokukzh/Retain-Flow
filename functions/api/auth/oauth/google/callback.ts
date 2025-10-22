@@ -1,50 +1,96 @@
 import jwt from 'jsonwebtoken';
 
 export async function onRequestGet(context: { request: Request; env: any }) {
-  const url = new URL(context.request.url);
-  const code = url.searchParams.get('code');
-  if (!code) return new Response('Missing code', { status: 400 });
+  try {
+    const url = new URL(context.request.url);
+    const code = url.searchParams.get('code');
+    const error = url.searchParams.get('error');
+    
+    if (error) {
+      return new Response(`OAuth Error: ${error}`, { status: 400 });
+    }
+    
+    if (!code) {
+      return new Response('Missing authorization code', { status: 400 });
+    }
 
-  const redirect = context.env.PUBLIC_URL + '/api/auth/oauth/google/callback';
-  const body = new URLSearchParams({
-    client_id: context.env.GOOGLE_CLIENT_ID,
-    client_secret: context.env.GOOGLE_CLIENT_SECRET,
-    grant_type: 'authorization_code',
-    code,
-    redirect_uri: redirect,
-  });
+    // Check if environment variables are configured
+    if (!context.env.GOOGLE_CLIENT_ID || !context.env.GOOGLE_CLIENT_SECRET) {
+      return new Response('Google OAuth not configured. Please set GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET environment variables.', { status: 500 });
+    }
 
-  const tokenResp = await fetch('https://oauth2.googleapis.com/token', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-    body,
-  });
-  if (!tokenResp.ok) return new Response('OAuth exchange failed', { status: 400 });
-  const tokenSet = await tokenResp.json();
+    const redirectUri = `${context.env.PUBLIC_URL || 'https://e30251a6.retainflow-prod.pages.dev'}/api/auth/oauth/google/callback`;
+    
+    const body = new URLSearchParams({
+      client_id: context.env.GOOGLE_CLIENT_ID,
+      client_secret: context.env.GOOGLE_CLIENT_SECRET,
+      grant_type: 'authorization_code',
+      code,
+      redirect_uri: redirectUri,
+    });
 
-  const userResp = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
-    headers: { Authorization: `Bearer ${tokenSet.access_token}` },
-  });
-  const user = await userResp.json();
+    const tokenResp = await fetch('https://oauth2.googleapis.com/token', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body,
+    });
+    
+    if (!tokenResp.ok) {
+      const errorText = await tokenResp.text();
+      console.error('Token exchange failed:', errorText);
+      return new Response(`OAuth token exchange failed: ${errorText}`, { status: 400 });
+    }
+    
+    const tokenSet = await tokenResp.json();
 
-  // Store Google connection in KV
-  await context.env.INTEGRATIONS_KV.put(
-    'google:connection',
-    JSON.stringify({
-      accessToken: tokenSet.access_token,
-      refreshToken: tokenSet.refresh_token,
-      userId: user.sub,
-      email: user.email,
+    const userResp = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
+      headers: { Authorization: `Bearer ${tokenSet.access_token}` },
+    });
+    
+    if (!userResp.ok) {
+      return new Response('Failed to fetch user info', { status: 400 });
+    }
+    
+    const user = await userResp.json();
+
+    // Store Google connection in KV if available
+    if (context.env.INTEGRATIONS_KV) {
+      try {
+        await context.env.INTEGRATIONS_KV.put(
+          'google:connection',
+          JSON.stringify({
+            accessToken: tokenSet.access_token,
+            refreshToken: tokenSet.refresh_token,
+            userId: user.sub,
+            email: user.email,
+            name: user.name,
+            picture: user.picture,
+            connectedAt: new Date().toISOString(),
+          })
+        );
+      } catch (kvError) {
+        console.warn('KV storage not available:', kvError);
+      }
+    }
+
+    // Create JWT token
+    const jwtSecret = context.env.JWT_SECRET || 'fallback-secret-for-development';
+    const jwtToken = jwt.sign({ 
+      sub: user.sub, 
+      email: user.email, 
       name: user.name,
-      picture: user.picture,
-      connectedAt: new Date().toISOString(),
-    })
-  );
-
-  const jwtToken = jwt.sign({ sub: user.sub, email: user.email, provider: 'google' }, context.env.JWT_SECRET, { expiresIn: '1h' });
-  const res = Response.redirect(context.env.PUBLIC_URL + '/dashboard', 302);
-  res.headers.append('Set-Cookie', `rf_token=${jwtToken}; Path=/; HttpOnly; Secure; SameSite=Strict; Max-Age=3600`);
-  return res;
+      provider: 'google' 
+    }, jwtSecret, { expiresIn: '1h' });
+    
+    const publicUrl = context.env.PUBLIC_URL || 'https://e30251a6.retainflow-prod.pages.dev';
+    const res = Response.redirect(`${publicUrl}/dashboard?google_connected=true`, 302);
+    res.headers.append('Set-Cookie', `rf_token=${jwtToken}; Path=/; HttpOnly; Secure; SameSite=Strict; Max-Age=3600`);
+    return res;
+    
+  } catch (error) {
+    console.error('Google OAuth callback error:', error);
+    return new Response(`OAuth callback error: ${error.message}`, { status: 500 });
+  }
 }
 
 
