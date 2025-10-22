@@ -2,9 +2,7 @@
 
 ## 1. Get Your Stripe API Keys
 
-From your Stripe CLI output, you have:
-- **Account ID**: `acct_1S8tiw6bysxOOlng`
-- **Webhook Secret**: `whsec_ee2e5b786174555d01b1c457305ae593dbbeca52d23075a3c111fc3c99765495`
+
 
 To get your **Secret Key**:
 1. Go to https://dashboard.stripe.com/apikeys
