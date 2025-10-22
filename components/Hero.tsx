@@ -2,8 +2,8 @@
 
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
-import Lottie from 'lottie-react';
-import aiAnimation from '@/public/lottie/ai.json';
+// import Lottie from 'lottie-react';
+// import aiAnimation from '/ai.json';
 import Link from 'next/link';
 
 export default function Hero() {
@@ -21,10 +21,10 @@ export default function Hero() {
       {/* Background gradient overlay */}
       <div className="absolute inset-0 bg-gradient-to-br from-primary-950/80 via-secondary-900/60 to-primary-900/80" />
       
-      {/* Animated background via Lottie */}
-      <div className="absolute inset-0 opacity-30 pointer-events-none">
+      {/* Animated background via Lottie - temporarily disabled */}
+      {/* <div className="absolute inset-0 opacity-30 pointer-events-none">
         <Lottie animationData={aiAnimation} loop={true} />
-      </div>
+      </div> */}
 
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
         <div className={`transition-all duration-1000 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
