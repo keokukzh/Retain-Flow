@@ -140,7 +140,7 @@ export default function Testimonials() {
             navigation
             pagination={{ clickable: true }}
             autoplay={{ delay: 5000, disableOnInteraction: false }}
-            onSlideChange={(s) => setCurrentIndex(s.realIndex)}
+            onSlideChange={() => {}}
           >
             {testimonials.map((t) => (
               <SwiperSlide key={t.id}>
