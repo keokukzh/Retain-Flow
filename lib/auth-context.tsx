@@ -18,8 +18,8 @@ interface User {
 interface AuthContextType {
   user: User | null;
   loading: boolean;
-  login: (email: string, password: string) => Promise<{ success: boolean; message?: string; requiresVerification?: boolean }>;
-  register: (name: string, email: string, password: string) => Promise<{ success: boolean; message?: string }>;
+  login: (_email: string, _password: string) => Promise<{ success: boolean; message?: string; requiresVerification?: boolean }>;
+  register: (_name: string, _email: string, _password: string) => Promise<{ success: boolean; message?: string }>;
   logout: () => void;
   refreshUser: () => Promise<void>;
 }
@@ -53,7 +53,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         };
       }
     } catch (error) {
-      console.error('Login error:', error);
+      // console.error('Login error:', error);
       return { success: false, message: 'Network error. Please try again.' };
     }
   };
@@ -76,7 +76,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         return { success: false, message: data.message || 'Registration failed' };
       }
     } catch (error) {
-      console.error('Registration error:', error);
+      // console.error('Registration error:', error);
       return { success: false, message: 'Network error. Please try again.' };
     }
   };
@@ -101,7 +101,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setUser(null);
       }
     } catch (error) {
-      console.error('Failed to refresh user:', error);
+      // console.error('Failed to refresh user:', error);
       setUser(null);
     }
   };

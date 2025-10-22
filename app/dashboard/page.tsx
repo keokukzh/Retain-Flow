@@ -156,7 +156,7 @@ export default function DashboardPage() {
         alert(`Failed to create checkout session: ${error.error}`);
       }
     } catch (error) {
-      console.error('Error creating checkout session:', error);
+      // console.error('Error creating checkout session:', error);
     }
   };
 
@@ -173,10 +173,10 @@ export default function DashboardPage() {
         const data = await response.json();
         window.location.href = data.url;
       } else {
-        console.error('Failed to create portal session');
+        // console.error('Failed to create portal session');
       }
     } catch (error) {
-      console.error('Error creating portal session:', error);
+      // console.error('Error creating portal session:', error);
     }
   };
 

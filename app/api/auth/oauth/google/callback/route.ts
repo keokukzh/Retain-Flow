@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma-edge';
-import { generateJWT } from '@/lib/jwt-edge';
+import { signJWT } from '@/lib/jwt-edge';
 
 export async function GET(request: NextRequest) {
   try {
@@ -95,7 +95,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Generate JWT token
-    const token = await generateJWT({
+    const token = await signJWT({
       userId: user.id,
       email: user.email,
       name: user.name,
@@ -120,7 +120,7 @@ export async function GET(request: NextRequest) {
 
     return response;
   } catch (error) {
-    console.error('Google OAuth callback error:', error);
+    // console.error('Google OAuth callback error:', error);
     return NextResponse.redirect(
       new URL('/login?error=oauth_callback_failed', request.url)
     );

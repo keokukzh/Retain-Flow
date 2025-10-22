@@ -33,7 +33,7 @@ export async function GET(request: NextRequest) {
       state,
     });
   } catch (error) {
-    console.error('Discord OAuth start error:', error);
+    // console.error('Discord OAuth start error:', error);
     return NextResponse.json(
       { error: 'Failed to initiate Discord OAuth' },
       { status: 500 }
