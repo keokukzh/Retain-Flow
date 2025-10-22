@@ -19,6 +19,10 @@ const nextConfig = {
         tls: false,
       };
     }
+    
+    // Disable webpack cache for Cloudflare Pages
+    config.cache = false;
+    
     return config;
   },
   env: {

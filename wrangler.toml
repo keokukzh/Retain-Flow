@@ -26,10 +26,27 @@ directory = "functions"
 # DISCORD_CLIENT_SECRET = "your_discord_client_secret_from_discord_com_developers"
 
 # Stripe Live Mode Configuration
-# STRIPE_SECRET_KEY = "sk_live_your_stripe_secret_key_from_dashboard_stripe_com"
-# STRIPE_PRICE_ID_PRO_MONTHLY = "price_your_monthly_price_id_from_stripe_products"
-# STRIPE_PRICE_ID_PRO_YEARLY = "price_your_yearly_price_id_from_stripe_products"
-# STRIPE_WEBHOOK_SECRET = "whsec_your_webhook_secret_from_stripe_webhooks"
+# For security, do NOT store Stripe keys directly in this file.
+# Set these in the Cloudflare dashboard (Pages/Workers Environment Variables section).
+# See: https://stripe.com/docs/keys#safe-keys
+#
+# IMPORTANT: Never put secret Stripe API keys in this file or commit to git!
+# Instead, always set sensitive keys like STRIPE_SECRET_KEY,
+# STRIPE_PRICE_ID_PRO_MONTHLY, STRIPE_PRICE_ID_PRO_YEARLY, and STRIPE_WEBHOOK_SECRET
+# as environment variables in the Cloudflare dashboard (Pages/Workers Environment Variables section).
+#
+# Example environment variable names to use in dashboard ONLY:
+#   STRIPE_SECRET_KEY
+#   STRIPE_PRICE_ID_PRO_MONTHLY
+#   STRIPE_PRICE_ID_PRO_YEARLY
+#   STRIPE_WEBHOOK_SECRET
+//
+// Do not uncomment or set Stripe keys here!
+# STRIPE_SECRET_KEY = ""
+# STRIPE_PRICE_ID_PRO_MONTHLY = ""
+# STRIPE_PRICE_ID_PRO_YEARLY = ""
+# STRIPE_WEBHOOK_SECRET = ""
+
 
 # Security & URLs
 # JWT_SECRET = "your_32_character_random_string_generated_secret"
