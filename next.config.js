@@ -1,15 +1,17 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  // Cloudflare Pages Functions configuration
   experimental: {
     serverComponentsExternalPackages: ['@prisma/client'],
   },
-  // Cloudflare Pages configuration
+  // Remove static export - use Cloudflare Pages Functions
   trailingSlash: true,
   images: {
     domains: ['localhost', 'aidevelo.ai'],
     formats: ['image/webp', 'image/avif'],
-    unoptimized: true, // For Cloudflare Pages
+    unoptimized: true, // Required for Cloudflare Pages
   },
+  // Optimize for Cloudflare Pages Functions
   webpack: (config, { isServer }) => {
     if (!isServer) {
       config.resolve.fallback = {
@@ -30,14 +32,13 @@ const nextConfig = {
       };
     }
     
-    // Disable webpack cache for Cloudflare Pages
-    config.cache = false;
-    
     return config;
   },
+  // Environment variables
   env: {
     CUSTOM_KEY: process.env.CUSTOM_KEY,
   },
+  // CORS headers for API routes
   async headers() {
     return [
       {
@@ -48,14 +49,6 @@ const nextConfig = {
           { key: 'Access-Control-Allow-Methods', value: 'GET,OPTIONS,PATCH,DELETE,POST,PUT' },
           { key: 'Access-Control-Allow-Headers', value: 'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version' },
         ],
-      },
-    ];
-  },
-  async rewrites() {
-    return [
-      {
-        source: '/api/webhooks/:path*',
-        destination: '/api/webhooks/:path*',
       },
     ];
   },

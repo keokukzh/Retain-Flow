@@ -154,12 +154,18 @@ export class DiscordBotAutomation {
    * Handle message create event
    */
   private static async handleMessageCreate(data: any) {
-    const { author, guild_id } = data;
+    const { author, guild_id, message } = data;
     
     if (author.bot) return;
     
     // Track activity
-    await DiscordService.trackActivity(author.id, guild_id);
+    await DiscordService.trackActivity({
+      userId: author.id,
+      guildId: guild_id,
+      messageId: message.id,
+      content: message.content,
+      timestamp: new Date(),
+    });
   }
 
   /**

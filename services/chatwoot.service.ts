@@ -212,16 +212,24 @@ export class ChatwootService {
 
       switch (event) {
         case 'conversation.created':
-          await this.handleConversationCreated(data.conversation);
+          if (data.conversation) {
+            await this.handleConversationCreated(data.conversation);
+          }
           break;
         case 'conversation.updated':
-          await this.handleConversationUpdated(data.conversation);
+          if (data.conversation) {
+            await this.handleConversationUpdated(data.conversation);
+          }
           break;
         case 'message.created':
-          await this.handleMessageCreated(data.message);
+          if (data.message) {
+            await this.handleMessageCreated(data.message);
+          }
           break;
         case 'contact.created':
-          await this.handleContactCreated(data.contact);
+          if (data.contact) {
+            await this.handleContactCreated(data.contact);
+          }
           break;
         default:
           console.log(`Unhandled Chatwoot webhook event: ${event}`);

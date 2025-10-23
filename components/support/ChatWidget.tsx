@@ -57,7 +57,7 @@ export function ChatWidget({
           window.chatwootSDK.setCustomAttributes({
             user_id: user.id,
             plan: 'free', // This would come from user subscription data
-            signup_date: user.createdAt?.toISOString(),
+            signup_date: new Date().toISOString(), // Use current date as fallback
           });
         }
 

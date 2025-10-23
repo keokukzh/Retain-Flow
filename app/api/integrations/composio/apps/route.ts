@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import { ComposioService } from '@/services/composio.service';
 import { PrismaClient } from '@prisma/client';
 

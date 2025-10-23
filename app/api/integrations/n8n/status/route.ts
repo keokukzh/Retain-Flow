@@ -21,7 +21,7 @@ export async function GET(request: NextRequest) {
       try {
         workflows = await N8nService.getWorkflows();
       } catch (error) {
-        console.error('Error getting workflows:', error);
+        // Error getting workflows
       }
     }
 

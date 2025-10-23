@@ -99,6 +99,7 @@ export async function GET(request: NextRequest) {
       userId: user.id,
       email: user.email,
       name: user.name,
+      provider: 'google',
     });
 
     // Clean up OAuth state

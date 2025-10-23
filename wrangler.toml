@@ -1,68 +1,29 @@
 name = "retain-flow-new"
-pages_build_output_dir = ".vercel/output/static"
+pages_build_output_dir = ".next"
 
 compatibility_date = "2024-10-01"
 compatibility_flags = ["nodejs_compat"]
 
-# Functions configuration (for Cloudflare Workers, not Pages)
-# [functions]
-# directory = "functions"
+# Environment variables (set in Cloudflare dashboard)
+[vars]
+# These should be set in Cloudflare Pages dashboard, not here
+# DATABASE_URL = ""
+# JWT_SECRET = ""
+# STRIPE_SECRET_KEY = ""
+# N8N_API_URL = ""
+# COMPOSIO_API_KEY = ""
+# POSTHOG_PERSONAL_API_KEY = ""
+# CHATWOOT_API_TOKEN = ""
+# UNLOCK_PROVIDER_URL = ""
 
-# KV namespace will be created via Cloudflare dashboard
+# Optional: KV namespace for caching (uncomment if needed)
 # [[kv_namespaces]]
 # binding = "INTEGRATIONS_KV"
 # id = "your-kv-namespace-id-here"
 # preview_id = "your-preview-kv-namespace-id-here"
 
-[vars]
-# Production Environment Variables
-# Set these in Cloudflare Pages → retainflow-prod → Settings → Environment Variables → Production
-# See PRODUCTION_SETUP.md for detailed setup instructions
-
-# OAuth Configuration
-# GOOGLE_CLIENT_ID = "your_google_client_id_from_console_cloud_google_com"
-# GOOGLE_CLIENT_SECRET = "your_google_client_secret_from_console_cloud_google_com"
-# DISCORD_CLIENT_ID = "your_discord_client_id_from_discord_com_developers"
-# DISCORD_CLIENT_SECRET = "your_discord_client_secret_from_discord_com_developers"
-
-# Stripe Live Mode Configuration
-# For security, do NOT store Stripe keys directly in this file.
-# Set these in the Cloudflare dashboard (Pages/Workers Environment Variables section).
-# See: https://stripe.com/docs/keys#safe-keys
-#
-# IMPORTANT: Never put secret Stripe API keys in this file or commit to git!
-# Instead, always set sensitive keys like STRIPE_SECRET_KEY,
-# STRIPE_PRICE_ID_PRO_MONTHLY, STRIPE_PRICE_ID_PRO_YEARLY, and STRIPE_WEBHOOK_SECRET
-# as environment variables in the Cloudflare dashboard (Pages/Workers Environment Variables section).
-#
-# Example environment variable names to use in dashboard ONLY:
-#   STRIPE_SECRET_KEY
-#   STRIPE_PRICE_ID_PRO_MONTHLY
-#   STRIPE_PRICE_ID_PRO_YEARLY
-#   STRIPE_WEBHOOK_SECRET
-# Do not uncomment or set Stripe keys here!
-# STRIPE_SECRET_KEY = ""
-# STRIPE_PRICE_ID_PRO_MONTHLY = ""
-# STRIPE_PRICE_ID_PRO_YEARLY = ""
-# STRIPE_WEBHOOK_SECRET = ""
-
-
-# Security & URLs
-# JWT_SECRET = "your_32_character_random_string_generated_secret"
-# PUBLIC_URL = "https://2f17e891.retainflow-prod.pages.dev"
-
-# Optional Integrations (not required for basic functionality)
-# WHOP_WEBHOOK_SECRET = "your_whop_webhook_secret"
-# SHOPIFY_CLIENT_ID = "your_shopify_client_id"
-# SHOPIFY_CLIENT_SECRET = "your_shopify_client_secret"
-
-# Open-Source Integrations
-# N8N_API_URL = "https://your-n8n-instance.com"
-# N8N_API_KEY = "your_n8n_api_key"
-# COMPOSIO_API_KEY = "your_composio_api_key"
-# CHATWOOT_API_URL = "https://app.chatwoot.com"
-# CHATWOOT_API_TOKEN = "your_chatwoot_api_token"
-# NEXT_PUBLIC_CHATWOOT_WEBSITE_TOKEN = "your_chatwoot_website_token"
-# UNLOCK_NETWORK = "polygon"
-# UNLOCK_PROVIDER_URL = "https://rpc.unlock-protocol.com"
-
+# Optional: D1 database binding (uncomment if needed)
+# [[d1_databases]]
+# binding = "DB"
+# database_name = "retainflow-db"
+# database_id = "your-database-id-here"

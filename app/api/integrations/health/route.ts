@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import { IntegrationManagerService } from '@/services/integration-manager.service';
 import { PrismaClient } from '@prisma/client';
 

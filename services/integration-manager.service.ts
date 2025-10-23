@@ -93,8 +93,9 @@ export class IntegrationManagerService {
       if (userId) {
         for (const integration of integrations) {
           const status = await this.getIntegrationStatus(userId, integration.provider);
-          integration.status = status.status === 'connected' ? 'connected' : 
-                              status.status === 'error' ? 'error' : 'available';
+          (integration as AvailableIntegration).status = status.status === 'connected' ? 'connected' : 
+                              status.status === 'error' ? 'error' : 
+                              status.status === 'not_configured' ? 'available' : 'available';
         }
       }
 
@@ -132,11 +133,12 @@ export class IntegrationManagerService {
    * Get status of a specific integration
    */
   static async getIntegrationStatus(userId: string, provider: string): Promise<IntegrationStatus> {
+    const integration = this.INTEGRATIONS.find(i => i.provider === provider);
+    if (!integration) {
+      throw new Error(`Unknown integration: ${provider}`);
+    }
+    
     try {
-      const integration = this.INTEGRATIONS.find(i => i.provider === provider);
-      if (!integration) {
-        throw new Error(`Unknown integration: ${provider}`);
-      }
 
       // Check if integration is configured
       if (!this.isIntegrationConfigured(provider)) {

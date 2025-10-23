@@ -126,40 +126,6 @@ export class DiscordService {
     }
   }
 
-  /**
-   * Track member activity
-   */
-  static async trackActivity(userId: string, guildId: string | null) {
-    if (!guildId) return;
-
-    try {
-      await prisma.discordMember.upsert({
-        where: {
-          userId_guildId: {
-            userId,
-            guildId,
-          },
-        },
-        update: {
-          lastActiveAt: new Date(),
-          messageCount: {
-            increment: 1,
-          },
-        },
-        create: {
-          userId,
-          guildId,
-          discordId: userId,
-          username: `user_${userId}`,
-          roles: [],
-          lastActiveAt: new Date(),
-          messageCount: 1,
-        },
-      });
-    } catch (error) {
-      console.error('Error tracking activity:', error);
-    }
-  }
 
   /**
    * Sync guild to database

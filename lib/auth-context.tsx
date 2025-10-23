@@ -18,8 +18,8 @@ interface User {
 interface AuthContextType {
   user: User | null;
   loading: boolean;
-  login: () => Promise<{ success: boolean; message?: string; requiresVerification?: boolean }>;
-  register: () => Promise<{ success: boolean; message?: string }>;
+  login: (_email: string, _password: string) => Promise<{ success: boolean; message?: string; requiresVerification?: boolean }>;
+  register: (_name: string, _email: string, _password: string) => Promise<{ success: boolean; message?: string }>;
   logout: () => void;
   refreshUser: () => Promise<void>;
 }

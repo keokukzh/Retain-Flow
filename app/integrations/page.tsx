@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '@/lib/auth-context';
 import { 
   CogIcon, 
@@ -64,13 +64,7 @@ export default function IntegrationsPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    if (user) {
-      loadIntegrations();
-    }
-  }, [user, loadIntegrations]);
-
-  const loadIntegrations = async () => {
+  const loadIntegrations = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
@@ -96,7 +90,13 @@ export default function IntegrationsPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [user?.id]);
+
+  useEffect(() => {
+    if (user) {
+      loadIntegrations();
+    }
+  }, [user, loadIntegrations]);
 
   const handleConnect = async (provider: string) => {
     try {

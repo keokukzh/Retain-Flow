@@ -184,8 +184,8 @@ export class ComposioService {
 
       return integrations.map(integration => ({
         id: integration.id,
-        appId: integration.config.appId as string,
-        appName: integration.config.appName as string,
+        appId: (integration.config as any)?.appId || '',
+        appName: (integration.config as any)?.appName || '',
         status: integration.active ? 'active' : 'inactive',
         connectedAt: integration.createdAt,
         lastUsedAt: integration.updatedAt,
