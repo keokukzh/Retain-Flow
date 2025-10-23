@@ -1,5 +1,6 @@
 import { DiscordService } from '@/services/discord.service';
 import { PrismaClient } from '@prisma/client';
+import { Client, GatewayIntentBits, Events, GuildMember, Message } from 'discord.js';
 
 const prisma = new PrismaClient();
 
@@ -9,6 +10,7 @@ const prisma = new PrismaClient();
  */
 export class DiscordBotAutomation {
   private static isRunning = false;
+  private static client: Client | null = null;
 
   /**
    * Start the Discord bot
@@ -21,13 +23,100 @@ export class DiscordBotAutomation {
 
     try {
       console.log('Starting Discord bot...');
-      // In a real implementation, this would initialize Discord.js client
+      
+      // Initialize Discord client
+      this.client = new Client({
+        intents: [
+          GatewayIntentBits.Guilds,
+          GatewayIntentBits.GuildMembers,
+          GatewayIntentBits.GuildMessages,
+          GatewayIntentBits.MessageContent
+        ]
+      });
+
+      // Set up event handlers
+      this.setupEventHandlers();
+
+      // Login with bot token
+      await this.client.login(process.env.DISCORD_BOT_TOKEN);
+      
       this.isRunning = true;
       console.log('Discord bot started successfully');
     } catch (error) {
       console.error('Failed to start Discord bot:', error);
       throw error;
     }
+  }
+
+  /**
+   * Setup Discord event handlers
+   */
+  private static setupEventHandlers() {
+    if (!this.client) return;
+
+    // Bot ready event
+    this.client.once(Events.ClientReady, (readyClient) => {
+      console.log(`Discord bot ready! Logged in as ${readyClient.user.tag}`);
+    });
+
+    // New member joined
+    this.client.on(Events.GuildMemberAdd, async (member: GuildMember) => {
+      try {
+        await DiscordService.handleNewMember({
+          user: {
+            id: member.user.id,
+            username: member.user.username,
+            discriminator: member.user.discriminator,
+            avatar: member.user.avatar
+          },
+          guild: {
+            id: member.guild.id,
+            name: member.guild.name,
+            memberCount: member.guild.memberCount
+          }
+        });
+      } catch (error) {
+        console.error('Error handling new member:', error);
+      }
+    });
+
+    // Member left
+    this.client.on(Events.GuildMemberRemove, async (member: GuildMember) => {
+      try {
+        await DiscordService.handleMemberLeave({
+          user: {
+            id: member.user.id,
+            username: member.user.username,
+            discriminator: member.user.discriminator,
+            avatar: member.user.avatar
+          },
+          guild: {
+            id: member.guild.id,
+            name: member.guild.name,
+            memberCount: member.guild.memberCount
+          }
+        });
+      } catch (error) {
+        console.error('Error handling member leave:', error);
+      }
+    });
+
+    // Message created (for activity tracking)
+    this.client.on(Events.MessageCreate, async (message: Message) => {
+      try {
+        if (message.author.bot) return; // Ignore bot messages
+        
+        await DiscordService.trackActivity({
+          userId: message.author.id,
+          guildId: message.guild?.id,
+          messageId: message.id,
+          content: message.content,
+          timestamp: message.createdAt
+        });
+      } catch (error) {
+        console.error('Error tracking activity:', error);
+      }
+    });
   }
 
   /**

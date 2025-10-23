@@ -40,6 +40,61 @@ export class DiscordService {
   }
 
   /**
+   * Handle member leaving
+   */
+  static async handleMemberLeave(member: DiscordMember) {
+    try {
+      // Update member status in database
+      await prisma.discordMember.updateMany({
+        where: {
+          discordId: member.user.id,
+          guildId: member.guild.id
+        },
+        data: {
+          lastActiveAt: new Date()
+        }
+      });
+
+      console.log(`Member left: ${member.user.username} from ${member.guild.name}`);
+    } catch (error) {
+      console.error('Error handling member leave:', error);
+    }
+  }
+
+  /**
+   * Track user activity
+   */
+  static async trackActivity(activity: {
+    userId: string;
+    guildId?: string;
+    messageId: string;
+    content: string;
+    timestamp: Date;
+  }) {
+    try {
+      if (!activity.guildId) return;
+
+      // Update member activity
+      await prisma.discordMember.updateMany({
+        where: {
+          discordId: activity.userId,
+          guildId: activity.guildId
+        },
+        data: {
+          lastActiveAt: activity.timestamp,
+          messageCount: {
+            increment: 1
+          }
+        }
+      });
+
+      console.log(`Activity tracked for user ${activity.userId}`);
+    } catch (error) {
+      console.error('Error tracking activity:', error);
+    }
+  }
+
+  /**
    * Send welcome DM to new member
    */
   static async sendWelcomeDM(user: DiscordUser) {
