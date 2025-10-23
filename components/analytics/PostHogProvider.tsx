@@ -3,11 +3,7 @@
 import { useEffect } from 'react';
 import { useAuth } from '@/lib/auth-context';
 
-declare global {
-  interface Window {
-    posthog?: any;
-  }
-}
+// PostHog types are handled by the library
 
 export function PostHogProvider({ children }: { children: React.ReactNode }) {
   const { user } = useAuth();

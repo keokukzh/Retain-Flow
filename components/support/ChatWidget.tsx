@@ -3,11 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useAuth } from '@/lib/auth-context';
 
-declare global {
-  interface Window {
-    chatwootSDK?: any;
-  }
-}
+// Chatwoot types are handled by the library
 
 interface ChatWidgetProps {
   position?: 'bottom-right' | 'bottom-left';
@@ -28,7 +24,7 @@ export function ChatWidget({
   useEffect(() => {
     // Only load Chatwoot if website token is configured
     if (!process.env.NEXT_PUBLIC_CHATWOOT_WEBSITE_TOKEN) {
-      console.warn('Chatwoot website token not configured');
+      // Chatwoot website token not configured
       return;
     }
 
@@ -42,10 +38,10 @@ export function ChatWidget({
         window.chatwootSDK.run({
           websiteToken: process.env.NEXT_PUBLIC_CHATWOOT_WEBSITE_TOKEN,
           baseUrl: 'https://app.chatwoot.com',
-          position: position,
-          launcherTitle: launcherTitle,
-          launcherMessage: launcherMessage,
-          theme: theme,
+          position,
+          launcherTitle,
+          launcherMessage,
+          theme,
         });
 
         // Set user context if logged in

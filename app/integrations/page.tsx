@@ -68,7 +68,7 @@ export default function IntegrationsPage() {
     if (user) {
       loadIntegrations();
     }
-  }, [user]);
+  }, [user, loadIntegrations]);
 
   const loadIntegrations = async () => {
     try {
@@ -92,7 +92,7 @@ export default function IntegrationsPage() {
       }
     } catch (err) {
       setError('Failed to load integrations');
-      console.error('Error loading integrations:', err);
+      // Error loading integrations
     } finally {
       setLoading(false);
     }
@@ -118,7 +118,7 @@ export default function IntegrationsPage() {
       }
     } catch (err) {
       setError(`Failed to connect ${provider}`);
-      console.error('Error connecting integration:', err);
+      // Error connecting integration
     }
   };
 
@@ -141,7 +141,7 @@ export default function IntegrationsPage() {
       }
     } catch (err) {
       setError(`Failed to disconnect ${provider}`);
-      console.error('Error disconnecting integration:', err);
+      // Error disconnecting integration
     }
   };
 

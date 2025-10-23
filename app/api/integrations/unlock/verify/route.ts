@@ -7,7 +7,7 @@ const prisma = new PrismaClient();
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { userAddress, lockAddress, network } = body;
+    const { userAddress, lockAddress } = body;
 
     // Validate required fields
     if (!userAddress || !lockAddress) {

@@ -4,7 +4,7 @@ import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
-export async function GET(request: NextRequest) {
+export async function GET() {
   try {
     // Perform health checks on all integrations
     const healthChecks = await IntegrationManagerService.performHealthChecks();
