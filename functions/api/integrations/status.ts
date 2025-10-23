@@ -1,13 +1,23 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma-edge';
+import { PrismaClient } from '@prisma/client';
 
-export async function GET(request: NextRequest) {
+export async function onRequestGet(context: { request: Request; env: any }) {
   try {
-    const userId = request.headers.get('x-user-id');
+    const userId = context.request.headers.get('x-user-id');
     
     if (!userId) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      return new Response(JSON.stringify({ error: 'Unauthorized' }), { 
+        status: 401,
+        headers: { 'Content-Type': 'application/json' }
+      });
     }
+
+    const prisma = new PrismaClient({
+      datasources: {
+        db: {
+          url: context.env.DATABASE_URL,
+        },
+      },
+    });
 
     // Get user data to check integrations
     const user = await prisma.user.findUnique({
@@ -21,7 +31,10 @@ export async function GET(request: NextRequest) {
     });
 
     if (!user) {
-      return NextResponse.json({ error: 'User not found' }, { status: 404 });
+      return new Response(JSON.stringify({ error: 'User not found' }), { 
+        status: 404,
+        headers: { 'Content-Type': 'application/json' }
+      });
     }
 
     // Check Discord integration
@@ -46,7 +59,7 @@ export async function GET(request: NextRequest) {
       discord: {
         connected: discordConnected,
         guilds: discordGuilds,
-        botToken: !!process.env.DISCORD_BOT_TOKEN,
+        botToken: !!context.env.DISCORD_BOT_TOKEN,
         status: discordConnected ? 'active' : 'disconnected'
       },
       stripe: {
@@ -64,12 +77,16 @@ export async function GET(request: NextRequest) {
       }
     };
 
-    return NextResponse.json({ integrations });
+    await prisma.$disconnect();
+
+    return new Response(JSON.stringify({ integrations }), {
+      headers: { 'Content-Type': 'application/json' }
+    });
   } catch (error) {
     console.error('Integrations status error:', error);
-    return NextResponse.json(
-      { error: 'Failed to fetch integrations status' },
-      { status: 500 }
-    );
+    return new Response(JSON.stringify({ error: 'Failed to fetch integrations status' }), {
+      status: 500,
+      headers: { 'Content-Type': 'application/json' }
+    });
   }
 }
