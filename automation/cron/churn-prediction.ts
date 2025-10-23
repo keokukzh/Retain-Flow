@@ -29,7 +29,7 @@ export async function runChurnPredictionCron(): Promise<void> {
       const batch = users.slice(i, i + batchSize);
       
       await Promise.all(
-        batch.map(async (user) => {
+        batch.map(async (user: any) => {
           try {
             await triggerChurnPrediction(user.id);
           } catch (error) {

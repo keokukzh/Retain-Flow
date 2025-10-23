@@ -182,7 +182,7 @@ export class ComposioService {
         },
       });
 
-      return integrations.map(integration => ({
+      return integrations.map((integration: any) => ({
         id: integration.id,
         appId: (integration.config as any)?.appId || '',
         appName: (integration.config as any)?.appName || '',

@@ -127,7 +127,7 @@ export class ChurnPredictionService {
         take: limit,
       });
 
-      return predictions.map(p => ({
+      return predictions.map((p: any) => ({
         userId: p.userId,
         score: p.score,
         factors: p.factors as string[],

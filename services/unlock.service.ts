@@ -165,7 +165,7 @@ export class UnlockService {
         where: { userId },
       });
 
-      return memberships.map(membership => ({
+      return memberships.map((membership: any) => ({
         hasValidKey: this.isMembershipValid(membership),
         keyId: membership.keyId,
         expiration: membership.expiresAt || undefined,

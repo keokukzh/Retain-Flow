@@ -92,7 +92,7 @@ export class RetentionService {
         },
       });
 
-      return offers.map(offer => ({
+      return offers.map((offer: any) => ({
         id: offer.id,
         userId: offer.userId || userId,
         offerType: offer.discountPercent ? 'discount' : 'feature_upgrade',
