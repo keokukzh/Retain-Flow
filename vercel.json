@@ -10,7 +10,18 @@
     "STRIPE_PUBLISHABLE_KEY": "@stripe-publishable-key",
     "DISCORD_BOT_TOKEN": "@discord-bot-token",
     "EMAIL_SERVICE_API_KEY": "@email-service-api-key",
-    "REDIS_URL": "@redis-url"
+    "REDIS_URL": "@redis-url",
+    "NEXT_PUBLIC_POSTHOG_KEY": "@posthog-key",
+    "NEXT_PUBLIC_POSTHOG_HOST": "@posthog-host",
+    "POSTHOG_PERSONAL_API_KEY": "@posthog-personal-key",
+    "N8N_API_URL": "@n8n-api-url",
+    "N8N_API_KEY": "@n8n-api-key",
+    "COMPOSIO_API_KEY": "@composio-api-key",
+    "CHATWOOT_API_URL": "@chatwoot-api-url",
+    "CHATWOOT_API_TOKEN": "@chatwoot-api-token",
+    "NEXT_PUBLIC_CHATWOOT_WEBSITE_TOKEN": "@chatwoot-website-token",
+    "UNLOCK_NETWORK": "@unlock-network",
+    "UNLOCK_PROVIDER_URL": "@unlock-provider-url"
   },
   "functions": {
     "app/api/**/*.ts": {

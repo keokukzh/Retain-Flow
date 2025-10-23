@@ -4,7 +4,7 @@ const nextConfig = {
     serverComponentsExternalPackages: ['@prisma/client'],
   },
   // Cloudflare Pages configuration
-  // output: 'export', // Removed to enable Cloudflare Functions
+  output: 'export', // Enable static export for Cloudflare Pages
   trailingSlash: true,
   images: {
     domains: ['localhost', 'aidevelo.ai'],

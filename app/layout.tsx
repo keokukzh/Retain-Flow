@@ -2,6 +2,8 @@ import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import './globals.css';
 import { AuthProvider } from '@/lib/auth-context';
+import { PostHogProvider } from '@/components/analytics/PostHogProvider';
+import { ConditionalChatWidget } from '@/components/support/ChatWidget';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -68,9 +70,12 @@ export default function RootLayout({
     <html lang="en" className="h-full">
       <body className={`${inter.className} h-full antialiased`}>
         <AuthProvider>
-          <div className="min-h-full">
-            {children}
-          </div>
+          <PostHogProvider>
+            <div className="min-h-full">
+              {children}
+            </div>
+            <ConditionalChatWidget />
+          </PostHogProvider>
         </AuthProvider>
       </body>
     </html>

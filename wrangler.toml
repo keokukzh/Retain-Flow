@@ -1,5 +1,5 @@
 name = "retain-flow-new"
-pages_build_output_dir = ".next"
+pages_build_output_dir = "out"
 
 compatibility_date = "2024-10-01"
 compatibility_flags = ["nodejs_compat"]
@@ -55,4 +55,14 @@ compatibility_flags = ["nodejs_compat"]
 # WHOP_WEBHOOK_SECRET = "your_whop_webhook_secret"
 # SHOPIFY_CLIENT_ID = "your_shopify_client_id"
 # SHOPIFY_CLIENT_SECRET = "your_shopify_client_secret"
+
+# Open-Source Integrations
+# N8N_API_URL = "https://your-n8n-instance.com"
+# N8N_API_KEY = "your_n8n_api_key"
+# COMPOSIO_API_KEY = "your_composio_api_key"
+# CHATWOOT_API_URL = "https://app.chatwoot.com"
+# CHATWOOT_API_TOKEN = "your_chatwoot_api_token"
+# NEXT_PUBLIC_CHATWOOT_WEBSITE_TOKEN = "your_chatwoot_website_token"
+# UNLOCK_NETWORK = "polygon"
+# UNLOCK_PROVIDER_URL = "https://rpc.unlock-protocol.com"
 

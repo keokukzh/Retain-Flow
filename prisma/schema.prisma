@@ -35,6 +35,8 @@ model User {
   affiliateEarnings AffiliateReferral[] @relation("EarnedBy")
   discordMembers    DiscordMember[]
   editorProjects    EditorProject[]
+  integrations      Integration[]
+  unlockMemberships UnlockMembership[]
   
   @@map("users")
 }
@@ -315,5 +317,34 @@ model OAuthState {
   createdAt  DateTime @default(now())
   
   @@map("oauth_states")
+}
+
+model Integration {
+  id           String   @id @default(uuid())
+  userId       String
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  provider     String   // 'n8n', 'composio', 'posthog', 'chatwoot', 'unlock'
+  providerKey  String   // API Key/Token
+  config       Json     // Provider-spezifische Config
+  active       Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  
+  @@unique([userId, provider])
+  @@map("integrations")
+}
+
+model UnlockMembership {
+  id            String   @id @default(uuid())
+  userId        String
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  lockAddress   String   // Smart Contract Address
+  keyId         String   // NFT Token ID
+  walletAddress String
+  expiresAt     DateTime?
+  createdAt     DateTime @default(now())
+  
+  @@unique([userId, lockAddress])
+  @@map("unlock_memberships")
 }
 
